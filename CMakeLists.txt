@@ -230,3 +230,12 @@ target_link_libraries(
 	pspnet_apctl
     m
 )
+
+create_pbp_file(
+    TARGET ${PROJECT_NAME}
+    ICON_PATH NULL
+    BACKGROUND_PATH NULL
+    PREVIEW_PATH NULL
+    TITLE ${PROJECT_NAME}
+    VERSION ${PROJECT_VERSION}
+)
