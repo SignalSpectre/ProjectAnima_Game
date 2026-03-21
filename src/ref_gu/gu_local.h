@@ -126,11 +126,6 @@ typedef struct image_s
 
 	size_t		size;
 	byte		bpp;
-
-#ifdef USE_HASH_FOR_TEXTURES
-	uint		hashkey;
-	struct image_s		*nexthash;
-#endif
 } image_t;
 
 

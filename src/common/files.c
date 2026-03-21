@@ -74,24 +74,11 @@ struct file_s
 	struct file_s	*next;
 };
 
-#ifdef USE_HASH_FOR_FILES
-typedef struct filehash_s
-{
-	//uint	key;
-	int		index;
-	struct filehash_s	*next;
-} filehash_t;
-#endif
-
 typedef struct pack_s
 {
 	char	filename[MAX_OSPATH];
 	int		numfiles;
 	dpackfile_t	*files;
-#ifdef USE_HASH_FOR_FILES
-	filehash_t	**hashtable;
-	int		hashsize;
-#endif
 } pack_t;
 
 char	fs_gamedir[MAX_OSPATH];
@@ -220,10 +207,6 @@ static searchpath_t *FS_FindFile(const char *filename, int *index, int flags)
 	char			netpath[MAX_OSPATH];
 	pack_t			*pak;
 	int				i;
-#ifdef USE_HASH_FOR_FILES
-	filehash_t		*packhash;
-	uint			hashkey;
-#endif
 
 	if (index)
 		*index = -1;
@@ -242,15 +225,8 @@ static searchpath_t *FS_FindFile(const char *filename, int *index, int flags)
 		{
 			// look through all the pak file elements
 			pak = search->pack;
-#ifdef USE_HASH_FOR_FILES
-			hashkey = Com_StringHash (filename, pak->hashsize);
-			for(packhash = pak->hashtable[hashkey]; packhash != NULL; packhash = packhash->next)
-			{
-				i = packhash->index;
-#else
 			for (i = 0; i < pak->numfiles; i++)
 			{
-#endif
 				if (!Q_strcasecmp (pak->files[i].name, filename))
 				{	// found it!
 					if (index)
@@ -1139,12 +1115,6 @@ pack_t *FS_LoadPackFile (char *packfile)
 	FILE			*packhandle;
 #endif
 	unsigned		checksum;
-#ifdef USE_HASH_FOR_FILES
-	uint			hashkey;
-	filehash_t		*packhashes;
-	int				hashsize;
-	filehash_t		**hashtable;
-#endif
 
 #ifdef PSP_FIO
 	packhandle = sceIoOpen(packfile, PSP_O_RDONLY, 0);
@@ -1173,9 +1143,6 @@ pack_t *FS_LoadPackFile (char *packfile)
 		Com_Error (ERR_FATAL, "%s has %i files", packfile, numpackfiles);
 
 	packfiles = Hunk_AllocName (header.dirlen, "packfiles");
-#ifdef USE_HASH_FOR_FILES
-	packhashes = Hunk_AllocName (numpackfiles * sizeof(filehash_t), "packhashes");
-#endif
 
 #ifdef PSP_FIO
 	sceIoLseek (packhandle, header.dirofs, PSP_SEEK_SET);
@@ -1193,36 +1160,17 @@ pack_t *FS_LoadPackFile (char *packfile)
 		return NULL;
 #endif
 
-#ifdef USE_HASH_FOR_FILES
-// build hash table
-	hashsize = numpackfiles >> 2;
-	hashtable = Hunk_Alloc (sizeof (filehash_t) * hashsize);
-#endif
-
 // parse the directory
 	for (i = 0; i < numpackfiles; i++)
 	{
 		packfiles[i].filepos = LittleLong(packfiles[i].filepos);
 		packfiles[i].filelen = LittleLong(packfiles[i].filelen);
-
-#ifdef USE_HASH_FOR_FILES
-		// add to hash
-		hashkey = Com_StringHash (packfiles[i].name, hashsize);
-		//packhashes[i].key = hashkey;
-		packhashes[i].index = i;
-		packhashes[i].next = hashtable[hashkey];
-		hashtable[hashkey] = &packhashes[i];
-#endif
 	}
 
 	pack = Hunk_Alloc (sizeof (pack_t));
 	strcpy (pack->filename, packfile);
 	pack->numfiles = numpackfiles;
 	pack->files = packfiles;
-#ifdef USE_HASH_FOR_FILES
-	pack->hashtable = hashtable;
-	pack->hashsize = hashsize;
-#endif
 
 #ifdef PSP_FIO
 	sceIoClose (packhandle);

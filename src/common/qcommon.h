@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifndef HUNKSIZE
 #ifdef __psp__
+#undef __linux__
 #define HUNKSIZE	0xe00000	// 14MB
 #else
 #define HUNKSIZE	0x2000000	// 32MB
@@ -56,7 +57,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef __i386__
 #define CPUSTRING "i386"
-#elif defined __alpha__
+#elif defined(__alpha__)
 #define CPUSTRING "axp"
 #else
 #define CPUSTRING "Unknown"

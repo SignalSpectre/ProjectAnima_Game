@@ -182,9 +182,6 @@ target_compile_definitions(
     PRIVATE
     REF_HARD_LINKED
     GAME_HARD_LINKED
-    #USE_HASH_FOR_TEXTURES
-    #USE_HASH_FOR_SFX
-    #USE_HASH_FOR_FILES
     EXT_VERSION="${PROJECT_VERSION}"
     $<$<CONFIG:Debug>:DEBUG
                       USE_STDIN>
