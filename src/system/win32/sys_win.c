@@ -19,9 +19,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // sys_win.h
 
-#include "common/qcommon.h"
-#include "winquake.h"
-#include "resource.h"
 #include <errno.h>
 #include <float.h>
 #include <fcntl.h>
@@ -29,7 +26,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <direct.h>
 #include <io.h>
 #include <conio.h>
-#include <sys/types.h>
+
+#include "common/qcommon.h"
+#include "winquake.h"
+#include "resource.h"
 #include "conproc.h"
 
 #define MINIMUM_WIN_MEMORY	0x0a00000

@@ -40,6 +40,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <time.h>
 #include <ctype.h>
 
+#ifdef WIN32
+#include <sys/types.h>
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#endif
+
 #if (defined _M_IX86 || defined __i386__) && !defined C_ONLY && !defined __sun__
 #define id386	1
 #else

@@ -17,15 +17,28 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
+#ifdef WIN32
+#define _CRT_INTERNAL_NONSTDC_NAMES 1
 #include <sys/stat.h>
-#include <malloc.h>
-#ifdef __psp__
-#include <dirent.h>
-#elif defined WIN32
-#include "system/win32/dirent.h"
+#if !defined(S_ISREG) && defined(S_IFMT) && defined(S_IFREG)
+  #define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
 #endif
+#if !defined(S_ISDIR) && defined(S_IFMT) && defined(S_IFDIR)
+  #define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+#endif
+
+#define memalign(a, s) _aligned_malloc(s, a)
+
+#include "system/win32/dirent.h"
+#else
+#include <sys/stat.h>
+#include <dirent.h>
+#endif
+
+#include <malloc.h>
+
 #include "qcommon.h"
+
 #ifdef PSP_FIO
 #include <pspiofilemgr.h>
 #endif
@@ -1038,7 +1051,7 @@ byte *FS_LoadFile (const char *path, size_t *size, int flags)
 		else if (flags & FS_FLAG_MTEMP)
 			buffer = Hunk_TempAlloc (buffersize);
 		else if (flags & FS_FLAG_MLC)
-			buffer = memalign (16, buffersize);
+			buffer = memalign(16, buffersize);
 		else
 			buffer = Z_Malloc (buffersize);
 

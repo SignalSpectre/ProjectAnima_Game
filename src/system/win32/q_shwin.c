@@ -18,16 +18,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "common/qcommon.h"
-#include "winquake.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <direct.h>
 #include <io.h>
 #include <conio.h>
-#include <sys/types.h>
 
+#include "common/qcommon.h"
+#include "winquake.h"
+
+#if 0
 //===============================================================================
 
 int		hunkcount;
@@ -110,7 +111,7 @@ void Hunk_Free (void *base)
 }
 
 //===============================================================================
-
+#endif
 
 /*
 ================
