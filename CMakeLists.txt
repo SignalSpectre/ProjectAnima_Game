@@ -7,26 +7,37 @@ project(
 )
 
 set(CMAKE_C_STANDARD 99)
+
+message("Target system is " ${TARGET_SYSTEM})
+if((NOT DEFINED TARGET_SYSTEM) OR ((NOT "${TARGET_SYSTEM}" MATCHES "WIN32") AND (NOT "${TARGET_SYSTEM}" MATCHES "PSP")))
+	message( FATAL_ERROR "BUILD_SYSTEM variable must be defined." )
+endif()
+
+if ("${TARGET_SYSTEM}" MATCHES "PSP")
 enable_language(ASM)
+elseif("${TARGET_SYSTEM}" MATCHES "WIN32")
+enable_language(ASM_MASM)
+endif()
 
-option(HARDWARE_RENDERER "Use hardware GU/GL renderer" true)
+## target systems
+include(cmake/psp_build.cmake)
+include(cmake/win32_build.cmake)
 
+###############################
+## Define common directories
+###############################
 set(CLIENT_DIR ${PROJECT_SOURCE_DIR}/src/client)
 set(SERVER_DIR ${PROJECT_SOURCE_DIR}/src/server)
 set(REF_SOFT_DIR ${PROJECT_SOURCE_DIR}/src/ref_soft)
-set(REF_GU_DIR ${PROJECT_SOURCE_DIR}/src/ref_gu)
 set(COMMON_DIR ${PROJECT_SOURCE_DIR}/src/common)
-set(PSP_DIR ${PROJECT_SOURCE_DIR}/src/system/psp)
 set(SHARED_DIR ${PROJECT_SOURCE_DIR}/src/shared)
 set(NULL_DIR ${PROJECT_SOURCE_DIR}/src/system/null)
 set(GAME_DIR ${PROJECT_SOURCE_DIR}/src/game)
 
-set(REF soft)
-if(HARDWARE_RENDERER)
-    set(REF gu)
-endif()
-
-set(SOURCES_QUAKE2
+################################
+## Define common source lists
+###############################
+set(SOURCES_QUAKE2_COMMON
     ${CLIENT_DIR}/cl_cin.c
 	${CLIENT_DIR}/cl_ents.c
 	${CLIENT_DIR}/cl_fx.c
@@ -64,16 +75,6 @@ set(SOURCES_QUAKE2
 	${SERVER_DIR}/sv_send.c
 	${SERVER_DIR}/sv_user.c
 	${SERVER_DIR}/sv_world.c
-	${PSP_DIR}/debug_psp.c
-	${PSP_DIR}/sys_psp.c
-	${PSP_DIR}/in_psp.c
-	${PSP_DIR}/vid_psp.c
-	${PSP_DIR}/vid_menu_${REF}.c
-	${PSP_DIR}/net_psp.c
-	${PSP_DIR}/q_shpsp.c
-	${PSP_DIR}/glob.c
-    ${PSP_DIR}/snd_psp.c
-    ${PSP_DIR}/cd_mp3.c
 	${SHARED_DIR}/q_shared.c
 	${SHARED_DIR}/BOPS.S
 	${SHARED_DIR}/m_flash.c
@@ -129,25 +130,7 @@ set(SOURCES_GAME
 	${GAME_DIR}/p_weapon.c
 )
 
-if(${HARDWARE_RENDERER})
-set(SOURCES_REF
-    ${REF_GU_DIR}/gu_render.c
-	${REF_GU_DIR}/gu_vram.c
-	${REF_GU_DIR}/gu_extension.c
-	${REF_GU_DIR}/gu_clipping.c
-	${REF_GU_DIR}/gu_draw.c
-	${REF_GU_DIR}/gu_image.c
-	${REF_GU_DIR}/gu_light.c
-	${REF_GU_DIR}/gu_mesh.c
-	${REF_GU_DIR}/gu_model.c
-	${REF_GU_DIR}/gu_rmain.c
-	${REF_GU_DIR}/gu_rmisc.c
-	${REF_GU_DIR}/gu_rsurf.c
-	${REF_GU_DIR}/gu_warp.c
-)
-else()
-set(SOURCES_REF
-    ${PSP_DIR}/swimp_psp.c
+set(SOURCES_REF_SW_COMMON
 	${REF_SOFT_DIR}/r_aclip.c
 	${REF_SOFT_DIR}/r_alias.c
 	${REF_SOFT_DIR}/r_bsp.c
@@ -166,15 +149,77 @@ set(SOURCES_REF
 	${REF_SOFT_DIR}/r_sprite.c
 	${REF_SOFT_DIR}/r_surf.c
 )
+
+################################################
+## Create source lists based on target system
+################################################
+if ("${TARGET_SYSTEM}" MATCHES "PSP")
+set(SOURCES_QUAKE2
+	${SOURCES_QUAKE2_COMMON}
+	${SOURCES_QUAKE2_PSP}
+)
+
+set(SOURCES_REF_SW
+	${SOURCES_REF_SW_PSP}
+	${SOURCES_REF_SW_COMMON}
+)
+
+set(SOURCES_REF_HW
+	${SOURCES_REF_HW_PSP}
+)
+elseif ("${TARGET_SYSTEM}" MATCHES "WIN32")
+set(SOURCES_QUAKE2
+	${SOURCES_QUAKE2_COMMON}
+	${SOURCES_QUAKE2_WIN32}
+)
+
+set(SOURCES_REF_SW
+	${SOURCES_REF_SW_WIN32}
+	${SOURCES_REF_SW_COMMON}
+)
+
+set(SOURCES_REF_HW
+	${SOURCES_REF_HW_WIN32}
+)
 endif()
 
+#######################################################
+## Create REF source list based on selected renderer
+#######################################################
+if(${HARDWARE_RENDERER})
+	set(SOURCES_REF ${SOURCES_REF_HW})
+else()
+	set(SOURCES_REF ${SOURCES_REF_SW})
+endif()
+
+###################################
+## Target system compile options
+##################################
+if("${TARGET_SYSTEM}" MATCHES "PSP")
+set(TARGET_COMPILE_OPTS ${TARGET_COMPILE_OPTIONS_PSP})
+elseif ("${TARGET_SYSTEM}" MATCHES "WIN32")
+set(TARGET_COMPILE_OPTS ${TARGET_COMPILE_OPTIONS_WIN32})
+endif()
+
+##################################
+## Target system link libraries
+##################################
+if("${TARGET_SYSTEM}" MATCHES "PSP")
+set(TARGET_LINK_LIBS ${TARGET_LINK_LIBS_PSP})
+elseif ("${TARGET_SYSTEM}" MATCHES "WIN32")
+set(TARGET_LINK_LIBS ${TARGET_LINK_LIBS_WIN32})
+endif()
+
+################
+## Add target
+################
 add_executable(${PROJECT_NAME} ${SOURCES_QUAKE2} ${SOURCES_GAME} ${SOURCES_REF})
 
 target_compile_options(
     ${PROJECT_NAME}
     PRIVATE
-    -mno-gpopt 
     -Dstricmp=strcasecmp
+	${TARGET_COMPILE_OPTS}
 )
 
 target_compile_definitions(
@@ -196,29 +241,13 @@ target_include_directories(
 target_link_libraries(
     ${PROJECT_NAME}
     PRIVATE
-    pspwlan
-    pspnet_adhoc
-    pspnet_adhocctl
-    pspgum_vfpu
-    pspvfpu
-    pspgu
-    pspge
-    pspdmac
-    pspaudio
-    pspmp3
-    pspdisplay
-    pspvram
-    pspaudiolib
-    psprtc
-    psppower
-    psphprm
-	pspctrl
-	pspdebug
-	pspnet
-	pspnet_apctl
-    m
+    ${TARGET_LINK_LIBS}
 )
 
+######################
+## Post build tasks
+######################
+if("${TARGET_SYSTEM}" MATCHES "PSP")
 create_pbp_file(
     TARGET ${PROJECT_NAME}
     ICON_PATH NULL
@@ -227,3 +256,5 @@ create_pbp_file(
     TITLE ${PROJECT_NAME}
     VERSION ${PROJECT_VERSION}
 )
+#elseif ("${TARGET_SYSTEM}" MATCHES "WIN32")
+endif()

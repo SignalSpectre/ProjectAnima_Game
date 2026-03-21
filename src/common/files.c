@@ -20,7 +20,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <sys/stat.h>
 #include <malloc.h>
+#ifdef __psp__
 #include <dirent.h>
+#elif defined WIN32
+#include "system/win32/dirent.h"
+#endif
 #include "qcommon.h"
 #ifdef PSP_FIO
 #include <pspiofilemgr.h>
