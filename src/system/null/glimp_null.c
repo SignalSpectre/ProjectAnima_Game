@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#include "../ref_gl/gl_local.h"
+#include "ref_gl/gl_local.h"
 
 void		GLimp_BeginFrame( float camera_separation )
 {

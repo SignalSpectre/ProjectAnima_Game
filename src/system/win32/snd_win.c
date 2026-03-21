@@ -107,7 +107,7 @@ static qboolean DS_CreateBuffers( void )
 	memset (&format, 0, sizeof(format));
 	format.wFormatTag = WAVE_FORMAT_PCM;
     format.nChannels = dma.channels;
-    format.wBitsPerSample = dma.samplebits;
+    format.wBitsPerSample = dma.width * 8;
     format.nSamplesPerSec = dma.speed;
     format.nBlockAlign = format.nChannels * format.wBitsPerSample / 8;
     format.cbSize = 0;
@@ -180,7 +180,7 @@ static qboolean DS_CreateBuffers( void )
 		Com_DPrintf( "ok\n" );
 
 		dma.channels = format.nChannels;
-		dma.samplebits = format.wBitsPerSample;
+		dma.width = format.wBitsPerSample / 8;
 		dma.speed = format.nSamplesPerSec;
 
 		if (DS_OK != pDSBuf->lpVtbl->GetCaps (pDSBuf, &dsbcaps))
@@ -221,7 +221,7 @@ static qboolean DS_CreateBuffers( void )
 		Com_Printf("   %d channel(s)\n"
 		               "   %d bits/sample\n"
 					   "   %d bytes/sec\n",
-					   dma.channels, dma.samplebits, dma.speed);
+					   dma.channels, dma.width * 8, dma.speed);
 	
 	gSndBufSize = dsbcaps.dwBufferBytes;
 
@@ -232,11 +232,11 @@ static qboolean DS_CreateBuffers( void )
 	pDSBuf->lpVtbl->GetCurrentPosition(pDSBuf, &mmstarttime.u.sample, &dwWrite);
 	pDSBuf->lpVtbl->Play(pDSBuf, 0, 0, DSBPLAY_LOOPING);
 
-	dma.samples = gSndBufSize/(dma.samplebits/8);
+	dma.samples = gSndBufSize/dma.width;
 	dma.samplepos = 0;
 	dma.submission_chunk = 1;
 	dma.buffer = (unsigned char *) lpData;
-	sample16 = (dma.samplebits/8) - 1;
+	sample16 = dma.width - 1;
 
 	return true;
 }
@@ -355,7 +355,7 @@ sndinitstat SNDDMA_InitDirect (void)
 	HRESULT			hresult;
 
 	dma.channels = 2;
-	dma.samplebits = 16;
+	dma.width = 2;
 
 	if (s_khz->value == 44)
 		dma.speed = 44100;
@@ -453,7 +453,7 @@ qboolean SNDDMA_InitWav (void)
 	snd_completed = 0;
 
 	dma.channels = 2;
-	dma.samplebits = 16;
+	dma.width = 2;
 
 	if (s_khz->value == 44)
 		dma.speed = 44100;
@@ -465,7 +465,7 @@ qboolean SNDDMA_InitWav (void)
 	memset (&format, 0, sizeof(format));
 	format.wFormatTag = WAVE_FORMAT_PCM;
 	format.nChannels = dma.channels;
-	format.wBitsPerSample = dma.samplebits;
+	format.wBitsPerSample = dma.width * 8;
 	format.nSamplesPerSec = dma.speed;
 	format.nBlockAlign = format.nChannels
 		*format.wBitsPerSample / 8;
@@ -571,11 +571,11 @@ qboolean SNDDMA_InitWav (void)
 	}
 	Com_DPrintf ("ok\n");
 
-	dma.samples = gSndBufSize/(dma.samplebits/8);
+	dma.samples = gSndBufSize/dma.width;
 	dma.samplepos = 0;
 	dma.submission_chunk = 512;
 	dma.buffer = (unsigned char *) lpData;
-	sample16 = (dma.samplebits/8) - 1;
+	sample16 = dma.width - 1;
 
 	wav_init = true;
 

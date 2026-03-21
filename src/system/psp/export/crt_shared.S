@@ -1,6 +1,6 @@
 	.set noreorder
 
-#include "pspstub.s"
+#include "system/pspstub.s"
 
 	STUB_START "crt_shared",0x00090000,0x00270005
 	STUB_FUNC  0x411B4582,abs

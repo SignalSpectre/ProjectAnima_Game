@@ -1,6 +1,6 @@
 	.set noreorder
 
-#include "pspstub.s"
+#include "system/pspstub.s"
 
 	STUB_START "q_shared",0x00090000,0x002C0005
 	STUB_FUNC  0xF0841032,RotatePointAroundVector

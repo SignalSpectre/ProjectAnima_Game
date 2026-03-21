@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ** QGL_Shutdown() - unloads libraries, NULLs function pointers
 */
 #include <float.h>
-#include "../ref_gl/gl_local.h"
+#include "ref_gl/gl_local.h"
 #include "glw_win.h"
 
 int   ( WINAPI * qwglChoosePixelFormat )(HDC, CONST PIXELFORMATDESCRIPTOR *);
@@ -3437,7 +3437,7 @@ void GLimp_EnableLogging( qboolean enable )
 
 			asctime( newtime );
 
-			Com_sprintf( buffer, sizeof(buffer), "%s/gl.log", ri.FS_Gamedir() ); 
+			Com_sprintf( buffer, sizeof(buffer), "%s/gl.log", ri.FS_GetWriteDir(FS_PATH_GAMEDIR)); 
 			glw_state.log_fp = fopen( buffer, "wt" );
 
 			fprintf( glw_state.log_fp, "%s\n", asctime( newtime ) );
