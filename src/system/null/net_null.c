@@ -13,7 +13,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // net_null.c -- for loopback-only networking
-#include "../qcommon/qcommon.h"
+#include "common/qcommon.h"
 
 netadr_t	net_local_adr;
 

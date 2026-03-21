@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <pspctrl.h>
 
-#include "../client/client.h"
+#include "client/client.h"
 
 #define	IN_JOY_MAX_AXES 2
 #define IN_JOY_AXIS_X   0

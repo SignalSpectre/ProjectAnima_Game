@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspaudiocodec.h>
 #include <pspmp3.h>
 
-#include "../client/client.h"
+#include "client/client.h"
 
 #define MP3_ID3V1_ID			"TAG"
 #define MP3_ID3V1_ID_SZ			3

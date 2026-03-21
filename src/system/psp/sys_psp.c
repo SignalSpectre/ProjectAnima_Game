@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <sys/select.h>
 
 #include "../psp/debug_psp.h"
-#include "../qcommon/qcommon.h"
+#include "common/qcommon.h"
 
 PSP_MODULE_INFO ("PSPQuake2", PSP_MODULE_USER, 0, 1);
 PSP_MAIN_THREAD_ATTR (THREAD_ATTR_USER | THREAD_ATTR_VFPU);

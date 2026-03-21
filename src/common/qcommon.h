@@ -647,7 +647,7 @@ CMODEL
 */
 
 
-#include "../qcommon/qfiles.h"
+#include "common/qfiles.h"
 
 cmodel_t	*CM_LoadMap (char *name, qboolean clientload, unsigned *checksum);
 void		CM_ClearMap (void);

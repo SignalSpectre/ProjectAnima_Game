@@ -25,8 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <malloc.h>
 
-#include "../client/client.h"
-#include "../client/snd_loc.h"
+#include "client/client.h"
+#include "client/snd_loc.h"
 
 #define	PSP_NUM_AUDIO_SAMPLES	1024 // must be multiple of 64
 #define PSP_OUTPUT_SAMPLERATE	44100 // only 44100

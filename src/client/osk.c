@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 // osk.c
-#include "../client/client.h"
+#include "client/client.h"
 
 #define OSK_MAX_ROWS    13 // X
 #define OSK_MAX_LINES   4  // Y

@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // vid_null.c -- null video driver to aid porting efforts
 // this assumes that one of the refs is statically linked to the executable
 
-#include "../client/client.h"
+#include "client/client.h"
 
 viddef_t	viddef;				// global video state
 
