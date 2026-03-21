@@ -2,8 +2,8 @@
     "version": 8,
     "configurePresets": [
         {
-            "name": "PSPRelease",
-            "displayName": "PSPRelease",
+            "name": "Release_PSP",
+            "displayName": "Release_PSP",
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
@@ -12,10 +12,10 @@
             }
         },
         {
-            "name": "PSPDebug",
-            "displayName": "PSPDebug",
+            "name": "Debug_PSP",
+            "displayName": "Debug_PSP",
             "inherits": [
-                "PSPRelease"
+                "Release_PSP"
             ],
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
@@ -27,14 +27,14 @@
     ],
     "buildPresets": [
         {
-            "name": "BuildDebug",
-            "configurePreset": "PSPDebug",
-            "jobs": 0
+            "name": "BuildDebug_PSP",
+            "configurePreset": "Debug_PSP",
+            "jobs": 8
         },
         {
-            "name": "BuildRelease",
-            "configurePreset": "PSPRelease",
-            "jobs": 0
+            "name": "BuildRelease_PSP",
+            "configurePreset": "Release_PSP",
+            "jobs": 8
         }
     ]
 }

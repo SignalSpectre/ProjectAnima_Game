@@ -9,16 +9,7 @@ project(
 set(CMAKE_C_STANDARD 99)
 enable_language(ASM)
 
-if(DEFINED ENV{PSPDEV})
-    SET(PSPDEV $ENV{PSPDEV})
-else()
-    message(FATAL_ERROR "The environment variable PSPDEV needs to be defined.")
-endif()
-
-include(${PSPDEV}/psp/share/pspdev.cmake)
-include(CMakeDependentOption)
-
-option(HARDWARE_RENDERER "Use hardware GU renderer" true)
+option(HARDWARE_RENDERER "Use hardware GU/GL renderer" true)
 
 set(CLIENT_DIR ${PROJECT_SOURCE_DIR}/client)
 set(SERVER_DIR ${PROJECT_SOURCE_DIR}/server)
