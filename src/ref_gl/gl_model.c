@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 model_t	*loadmodel;
 int		modfilelen;
+char	loadname[32];	// for hunk tags
 
 void Mod_LoadSpriteModel (model_t *mod, void *buffer);
 void Mod_LoadBrushModel (model_t *mod, void *buffer);
@@ -141,18 +142,24 @@ void Mod_Modellist_f (void)
 {
 	int		i;
 	model_t	*mod;
-	int		total;
 
-	total = 0;
 	ri.Con_Printf (PRINT_ALL,"Loaded models:\n");
 	for (i=0, mod=mod_known ; i < mod_numknown ; i++, mod++)
 	{
 		if (!mod->name[0])
 			continue;
-		ri.Con_Printf (PRINT_ALL, "%8i : %s\n",mod->extradatasize, mod->name);
-		total += mod->extradatasize;
+
+		ri.Con_Printf (PRINT_ALL, "%s", mod->name);
+
+		if (mod->needload == nl_unreferenced)
+			ri.Con_Printf (PRINT_ALL, " (xURx)");
+		else if (mod->needload == nl_needs_loaded)
+			ri.Con_Printf (PRINT_ALL, " (>NL<)");
+		else
+			ri.Con_Printf (PRINT_ALL, " (<PR>)");
+
+		ri.Con_Printf (PRINT_ALL, "\n");
 	}
-	ri.Con_Printf (PRINT_ALL, "Total resident: %i\n", total);
 }
 
 /*
@@ -165,7 +172,168 @@ void Mod_Init (void)
 	memset (mod_novis, 0xff, sizeof(mod_novis));
 }
 
+/*
+===============
+Mod_Extradata
 
+Caches the data if needed
+===============
+*/
+void *Mod_Extradata (model_t *mod)
+{
+	void	*r;
+
+	r = ri.Cache_Check (&mod->cache);
+	if (r)
+		return r;
+
+	Mod_LoadModel (mod, true);
+
+	if (!mod->cache.data)
+		ri.Sys_Error (ERR_DROP,"Mod_Extradata: caching failed");
+	return mod->cache.data;
+}
+
+/*
+==================
+Mod_FindName
+
+==================
+*/
+model_t *Mod_FindName (char *name)
+{
+	int		i;
+	model_t	*mod;
+	model_t	*avail;
+
+	if (!name[0])
+		ri.Sys_Error (ERR_DROP,"Mod_ForName: NULL name");
+
+	//
+	// inline models are grabbed only from worldmodel
+	//
+	if (name[0] == '*')
+	{
+		i = atoi(name + 1);
+		if (i < 1 || !r_worldmodel || i >= r_worldmodel->numsubmodels)
+			ri.Sys_Error (ERR_DROP, "bad inline model number");
+		return &mod_inline[i];
+	}
+
+	//
+	// search the currently loaded models
+	//
+	for (i = 0, mod = mod_known; i < mod_numknown; i++, mod++)
+		if (!strcmp (mod->name, name))
+			return mod;
+
+	//
+	// find a free model slot spot
+	//
+	for (i = 0, avail = NULL, mod = mod_known; i < mod_numknown; i++, mod++)
+	{
+		if (!mod->name[0])
+			break; // this is a valid spot
+
+		if (mod->needload == nl_unreferenced)
+			if (!avail || mod->type != mod_alias)
+				avail = mod;
+	}
+
+	if (i == mod_numknown)
+	{
+		if (mod_numknown == MAX_MOD_KNOWN)
+		{
+			if (avail)
+			{
+				mod = avail;
+				if (mod->type == mod_alias)
+					if (ri.Cache_Check (&mod->cache))
+						ri.Cache_Free (&mod->cache);
+			}
+			else
+				ri.Sys_Error (ERR_DROP, "mod_numknown == MAX_MOD_KNOWN");
+		}
+		mod->needload = nl_needs_loaded;
+		mod_numknown++;
+	}
+
+	strcpy (mod->name, name);
+
+	return mod;
+}
+
+/*
+==================
+Mod_LoadModel
+
+Loads in a model
+==================
+*/
+model_t *Mod_LoadModel (model_t *mod, qboolean crash)
+{
+	void	*buf;
+
+	if (mod->type == mod_alias)
+	{
+		if (ri.Cache_Check (&mod->cache))
+		{
+			mod->needload = nl_present;
+			return mod;
+		}
+	}
+	else if (mod->needload == nl_present)
+	{
+		return mod;
+	}
+
+	//
+	// load the file
+	//
+	buf = ri.FS_LoadFile (mod->name, &modfilelen, FS_PATH_ALL | FS_FLAG_MTEMP);
+	if (!buf)
+	{
+		if (crash)
+			ri.Sys_Error (ERR_DROP,"Mod_LoadModel: %s not found", mod->name);
+		memset (mod->name, 0, sizeof(mod->name));
+		return NULL;
+	}
+
+	//
+	// allocate a new model
+	//
+	COM_FileBase (mod->name, loadname);
+	
+	loadmodel = mod;
+
+	//
+	// fill it in
+	//
+
+	// call the apropriate loader	
+	switch (LittleLong(*(unsigned *)buf))
+	{
+	case IDALIASHEADER:
+		Mod_LoadAliasModel (mod, buf);
+		break;
+		
+	case IDSPRITEHEADER:
+		Mod_LoadSpriteModel (mod, buf);
+		break;
+	
+	case IDBSPHEADER:
+		Mod_LoadBrushModel (mod, buf);
+		break;
+
+	default:
+		ri.Sys_Error (ERR_DROP,"Mod_NumForName: unknown fileid for %s", mod->name);
+		break;
+	}
+
+	// ri.FS_FreeFile (buf);
+
+	return mod;
+}
 
 /*
 ==================
@@ -177,98 +345,10 @@ Loads in a model for the given name
 model_t *Mod_ForName (char *name, qboolean crash)
 {
 	model_t	*mod;
-	unsigned *buf;
-	int		i;
-	
-	if (!name[0])
-		ri.Sys_Error (ERR_DROP, "Mod_ForName: NULL name");
-		
-	//
-	// inline models are grabbed only from worldmodel
-	//
-	if (name[0] == '*')
-	{
-		i = atoi(name+1);
-		if (i < 1 || !r_worldmodel || i >= r_worldmodel->numsubmodels)
-			ri.Sys_Error (ERR_DROP, "bad inline model number");
-		return &mod_inline[i];
-	}
 
-	//
-	// search the currently loaded models
-	//
-	for (i=0 , mod=mod_known ; i<mod_numknown ; i++, mod++)
-	{
-		if (!mod->name[0])
-			continue;
-		if (!strcmp (mod->name, name) )
-			return mod;
-	}
-	
-	//
-	// find a free model slot spot
-	//
-	for (i=0 , mod=mod_known ; i<mod_numknown ; i++, mod++)
-	{
-		if (!mod->name[0])
-			break;	// free spot
-	}
-	if (i == mod_numknown)
-	{
-		if (mod_numknown == MAX_MOD_KNOWN)
-			ri.Sys_Error (ERR_DROP, "mod_numknown == MAX_MOD_KNOWN");
-		mod_numknown++;
-	}
-	strcpy (mod->name, name);
-	
-	//
-	// load the file
-	//
-	buf = ri.FS_LoadFile (mod->name, &modfilelen, FS_PATH_ALL);
-	if (!buf)
-	{
-		if (crash)
-			ri.Sys_Error (ERR_DROP, "Mod_NumForName: %s not found", mod->name);
-		memset (mod->name, 0, sizeof(mod->name));
-		return NULL;
-	}
-	
-	loadmodel = mod;
+	mod = Mod_FindName (name);
 
-	//
-	// fill it in
-	//
-
-
-	// call the apropriate loader
-	
-	switch (LittleLong(*(unsigned *)buf))
-	{
-	case IDALIASHEADER:
-		loadmodel->extradata = Hunk_Begin (0x200000);
-		Mod_LoadAliasModel (mod, buf);
-		break;
-		
-	case IDSPRITEHEADER:
-		loadmodel->extradata = Hunk_Begin (0x10000);
-		Mod_LoadSpriteModel (mod, buf);
-		break;
-	
-	case IDBSPHEADER:
-		loadmodel->extradata = Hunk_Begin (0x1000000);
-		Mod_LoadBrushModel (mod, buf);
-		break;
-
-	default:
-		ri.Sys_Error (ERR_DROP,"Mod_NumForName: unknown fileid for %s", mod->name);
-		break;
-	}
-
-	loadmodel->extradatasize = Hunk_End ();
-
-	ri.FS_FreeFile (buf);
-
-	return mod;
+	return Mod_LoadModel (mod, crash);
 }
 
 /*
@@ -935,6 +1015,9 @@ void Mod_LoadAliasModel (model_t *mod, void *buffer)
 	daliasframe_t		*pinframe, *poutframe;
 	int					*pincmd, *poutcmd;
 	int					version;
+	int					start, end, total;
+
+	start = ri.Hunk_LowMark ();
 
 	pinmodel = (dmdl_t *)buffer;
 
@@ -943,7 +1026,7 @@ void Mod_LoadAliasModel (model_t *mod, void *buffer)
 		ri.Sys_Error (ERR_DROP, "%s has wrong version number (%i should be %i)",
 				 mod->name, version, ALIAS_VERSION);
 
-	pheader = Hunk_Alloc (LittleLong(pinmodel->ofs_end));
+	pheader = ri.Hunk_AllocName (LittleLong(pinmodel->ofs_end), loadname);
 	
 	// byte swap the header fields and sanity check
 	for (i=0 ; i<sizeof(dmdl_t)/4 ; i++)
@@ -1037,12 +1120,21 @@ void Mod_LoadAliasModel (model_t *mod, void *buffer)
 			, it_skin);
 	}
 
-	mod->mins[0] = -32;
-	mod->mins[1] = -32;
-	mod->mins[2] = -32;
-	mod->maxs[0] = 32;
-	mod->maxs[1] = 32;
-	mod->maxs[2] = 32;
+	mod->mins[0] = mod->mins[1] = mod->mins[2] = -32;
+	mod->maxs[0] = mod->maxs[1] = mod->maxs[2] = 32;
+
+	//
+	// move the complete, relocatable alias model to the cache
+	//
+	end = ri.Hunk_LowMark ();
+	total = end - start;
+
+	ri.Cache_Alloc (&mod->cache, total, loadname);
+	if (!mod->cache.data)
+		return;
+	memcpy (mod->cache.data, pheader, total);
+
+	ri.Hunk_FreeToLowMark (start);
 }
 
 /*
@@ -1105,20 +1197,15 @@ Specifies the model that will be used as the world
 void R_BeginRegistration (char *model)
 {
 	char	fullname[MAX_QPATH];
-	cvar_t	*flushmap;
 
-	registration_sequence++;
 	r_oldviewcluster = -1;		// force markleafs
-
 	Com_sprintf (fullname, sizeof(fullname), "maps/%s.bsp", model);
 
 	// explicitly free the old map if different
 	// this guarantees that mod_known[0] is the world map
-	flushmap = ri.Cvar_Get ("flushmap", "0", 0);
-	if ( strcmp(mod_known[0].name, fullname) || flushmap->value)
+	if (strcmp (mod_known[0].name, fullname))
 		Mod_Free (&mod_known[0]);
-	r_worldmodel = Mod_ForName(fullname, true);
-
+	r_worldmodel = Mod_ForName (fullname, true);
 	r_viewcluster = -1;
 }
 
@@ -1139,28 +1226,14 @@ struct model_s *R_RegisterModel (char *name)
 	mod = Mod_ForName (name, false);
 	if (mod)
 	{
-		mod->registration_sequence = registration_sequence;
-
-		// register any images used by the models
-		if (mod->type == mod_sprite)
+		if (mod->type == mod_alias)
 		{
-			sprout = (dsprite_t *)mod->extradata;
-			for (i=0 ; i<sprout->numframes ; i++)
-				mod->skins[i] = GL_FindImage (sprout->frames[i].name, it_sprite);
-		}
-		else if (mod->type == mod_alias)
-		{
-			pheader = (dmdl_t *)mod->extradata;
+			pheader = (dmdl_t *)Mod_Extradata (mod);
 			for (i=0 ; i<pheader->num_skins ; i++)
 				mod->skins[i] = GL_FindImage ((char *)pheader + pheader->ofs_skins + i*MAX_SKINNAME, it_skin);
 //PGM
 			mod->numframes = pheader->num_frames;
 //PGM
-		}
-		else if (mod->type == mod_brush)
-		{
-			for (i=0 ; i<mod->numtexinfo ; i++)
-				mod->texinfo[i].image->registration_sequence = registration_sequence;
 		}
 	}
 	return mod;
@@ -1175,20 +1248,20 @@ R_EndRegistration
 */
 void R_EndRegistration (void)
 {
-	int		i;
-	model_t	*mod;
 
-	for (i=0, mod=mod_known ; i<mod_numknown ; i++, mod++)
-	{
-		if (!mod->name[0])
-			continue;
-		if (mod->registration_sequence != registration_sequence)
-		{	// don't need this model
-			Mod_Free (mod);
-		}
-	}
+}
 
-	GL_FreeUnusedImages ();
+/*
+@@@@@@@@@@@@@@@@@@@@@
+R_ClearRegistered
+
+@@@@@@@@@@@@@@@@@@@@@
+*/
+void R_ClearRegistered (void)
+{
+	R_PurgeSkybox ();
+	GL_FreeImages ();
+	Mod_FreeAll ();
 }
 
 
@@ -1202,7 +1275,21 @@ Mod_Free
 */
 void Mod_Free (model_t *mod)
 {
-	Hunk_Free (mod->extradata);
+	int			i;
+	dsprite_t	*sprout;
+	dmdl_t		*pheader;
+
+	if (!mod)
+		return;
+
+	mod->needload = nl_unreferenced;
+	if (mod->type == mod_alias)
+	{
+		if (mod != &mod_known[0]) // worldmodel slot?
+			return;
+		ri.Cache_Free (&mod->cache);
+	}
+
 	memset (mod, 0, sizeof(*mod));
 }
 
@@ -1214,10 +1301,8 @@ Mod_FreeAll
 void Mod_FreeAll (void)
 {
 	int		i;
+	model_t	*mod;
 
-	for (i=0 ; i<mod_numknown ; i++)
-	{
-		if (mod_known[i].extradatasize)
-			Mod_Free (&mod_known[i]);
-	}
+	for (i=0 , mod=mod_known ; i<mod_numknown ; i++, mod++)
+		Mod_Free (mod);
 }

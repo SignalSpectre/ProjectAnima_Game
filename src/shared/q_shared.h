@@ -168,11 +168,11 @@ extern vec3_t vec3_origin;
 // microsoft's fabs seems to be ungodly slow...
 //float Q_fabs (float f);
 //#define	fabs(f) Q_fabs(f)
-#if !defined C_ONLY && !defined __linux__ && !defined __sgi && !defined __psp__
-extern long Q_ftol( float f );
-#else
+//#if !defined C_ONLY && !defined __linux__ && !defined __sgi && !defined __psp__
+//extern long Q_ftol( float f );
+//#else
 #define Q_ftol( f ) ( long ) (f)
-#endif
+//#endif
 
 
 #define VectorCompare(a,b)		(a[0]==b[0]&&a[1]==b[1]&&a[2]==b[2])

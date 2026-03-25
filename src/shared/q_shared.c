@@ -303,18 +303,20 @@ float Q_fabs (float f)
 #endif
 }
 
-#if defined _M_IX86 && !defined C_ONLY
-#pragma warning (disable:4035)
-__declspec( naked ) long Q_ftol( float f )
-{
-	static int tmp;
-	__asm fld dword ptr [esp+4]
-	__asm fistp tmp
-	__asm mov eax, tmp
-	__asm ret
-}
-#pragma warning (default:4035)
-#endif
+// #if (defined _M_IX86 || defined _M_X64) && !defined C_ONLY
+// #pragma warning (disable:4035)
+// long _stdcall Q_ftol( float f )
+// {
+// 	long retVal;
+// 	__asm {
+// 		fld dword ptr [esp+4]
+// 		fistp retVal
+// 	}
+// 
+// 	return retVal;
+// }
+// #pragma warning (default:4035)
+// #endif
 
 /*
 ===============

@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #ifdef _WIN32
-#  include <windows.h>
+#include <windows.h>
 #endif
 
 #include <stdio.h>
@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "client/ref.h"
 
-#include "qgl.h"
+#include "ref_gl/qgl.h"
 
 #define	REF_VERSION	"GL 0.01"
 
@@ -270,8 +270,8 @@ extern	int		registration_sequence;
 
 void V_AddBlend (float r, float g, float b, float a, float *v_blend);
 
-int 	R_Init( void *hinstance, void *hWnd );
-void	R_Shutdown( void );
+qboolean	R_Init (void *hinstance, void *hWnd);
+void		R_Shutdown( void );
 
 void R_RenderView (refdef_t *fd);
 void GL_ScreenShot_f (void);

@@ -168,6 +168,7 @@ typedef struct mleaf_s
 //
 // Whole model
 //
+typedef enum {nl_unreferenced, nl_needs_loaded, nl_present} needload_t;
 
 typedef enum {mod_bad, mod_brush, mod_sprite, mod_alias } modtype_t;
 
@@ -175,7 +176,7 @@ typedef struct model_s
 {
 	char		name[MAX_QPATH];
 
-	int			registration_sequence;
+	needload_t	needload;		// bmodels and sprites don't cache normally
 
 	modtype_t	type;
 	int			numframes;
@@ -238,24 +239,21 @@ typedef struct model_s
 	// for alias models and skins
 	image_t		*skins[MAX_MD2SKINS];
 
-	int			extradatasize;
-	void		*extradata;
+//
+// additional model data
+//
+	cache_user_t	cache;		// only access through Mod_Extradata
 } model_t;
 
 //============================================================================
 
 void	Mod_Init (void);
-void	Mod_ClearAll (void);
 model_t *Mod_ForName (char *name, qboolean crash);
-mleaf_t *Mod_PointInLeaf (float *p, model_t *model);
+void	*Mod_Extradata (model_t *mod);	// handles caching
+
+mleaf_t *Mod_PointInLeaf (vec3_t p, model_t *model);
 byte	*Mod_ClusterPVS (int cluster, model_t *model);
 
 void	Mod_Modellist_f (void);
-
-void	*Hunk_Begin (int maxsize);
-void	*Hunk_Alloc (int size);
-int		Hunk_End (void);
-void	Hunk_Free (void *base);
-
 void	Mod_FreeAll (void);
 void	Mod_Free (model_t *mod);
