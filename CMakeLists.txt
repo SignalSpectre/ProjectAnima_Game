@@ -17,6 +17,7 @@ if ("${TARGET_SYSTEM}" MATCHES "PSP")
 enable_language(ASM)
 elseif("${TARGET_SYSTEM}" MATCHES "WIN32")
 enable_language(ASM_MASM)
+set(TARGET_OPTIONS WIN32)
 endif()
 
 ## target systems
@@ -213,7 +214,7 @@ endif()
 ################
 ## Add target
 ################
-add_executable(${PROJECT_NAME} ${SOURCES_QUAKE2} ${SOURCES_GAME} ${SOURCES_REF})
+add_executable(${PROJECT_NAME} ${TARGET_OPTIONS} ${SOURCES_QUAKE2} ${SOURCES_GAME} ${SOURCES_REF})
 
 target_compile_options(
     ${PROJECT_NAME}

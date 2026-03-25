@@ -1259,8 +1259,6 @@ R_ClearRegistered
 */
 void R_ClearRegistered (void)
 {
-	R_PurgeSkybox ();
-	GL_FreeImages ();
 	Mod_FreeAll ();
 }
 
