@@ -458,9 +458,11 @@ Sys_UnloadGame
 */
 void Sys_UnloadGame (void)
 {
+#ifndef GAME_HARD_LINKED
 	if (!FreeLibrary (game_library))
 		Com_Error (ERR_FATAL, "FreeLibrary failed for game library");
 	game_library = NULL;
+#endif
 }
 
 /*
@@ -472,6 +474,7 @@ Loads the game dll
 */
 void *Sys_GetGameAPI (void *parms)
 {
+#ifndef GAME_HARD_LINKED
 	void	*(*GetGameAPI) (void *);
 	char	name[MAX_OSPATH];
 	char	*path;
@@ -562,6 +565,9 @@ void *Sys_GetGameAPI (void *parms)
 		Sys_UnloadGame ();		
 		return NULL;
 	}
+#else
+	void *GetGameAPI (void *import);
+#endif
 
 	return GetGameAPI (parms);
 }

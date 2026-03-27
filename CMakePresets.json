@@ -2,11 +2,10 @@
     "version": 8,
     "configurePresets": [
         {
-            "name": "Release_PSP",
-            "displayName": "Release_PSP",
+            "name": "PSP",
+            "displayName": "PSP",
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_TOOLCHAIN_FILE": "$env{PSPDEV}/psp/share/pspdev.cmake",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
                 "TARGET_SYSTEM": "PSP",
@@ -14,58 +13,40 @@
             }
         },
         {
-            "name": "Debug_PSP",
-            "displayName": "Debug_PSP",
-            "inherits": [
-                "Release_PSP"
-            ],
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "BUILD_PRX": "ON"
-            }
-        },
-        {
-            "name": "Release_WIN32",
-            "displayName": "Release_WIN32",
+            "name": "WIN32",
+            "displayName": "WIN32",
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
                 "TARGET_SYSTEM": "WIN32",
                 "HARDWARE_RENDERER": true
-            }
-        },
-        {
-            "name": "Debug_WIN32",
-            "displayName": "Debug_WIN32",
-            "inherits": [
-                "Release_WIN32"
-            ],
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
             }
         }
     ],
     "buildPresets": [
         {
-            "name": "BuildDebug_PSP",
-            "configurePreset": "Debug_PSP",
-            "jobs": 8
+            "name": "Debug_PSP",
+            "configurePreset": "PSP",
+            "jobs": 8,
+            "configuration": "Debug"
         },
         {
-            "name": "BuildRelease_PSP",
-            "configurePreset": "Release_PSP",
-            "jobs": 8
+            "name": "Release_PSP",
+            "configurePreset": "PSP",
+            "jobs": 8,
+            "configuration": "Release"
         },
         {
-            "name": "BuildDebug_WIN32",
-            "configurePreset": "Debug_WIN32",
-            "jobs": 8
+            "name": "Debug_WIN32",
+            "configurePreset": "WIN32",
+            "jobs": 8,
+            "configuration": "Debug"
         },
         {
-            "name": "BuildRelease_WIN32",
-            "configurePreset": "Release_WIN32",
-            "jobs": 8
+            "name": "Release_WIN32",
+            "configurePreset": "WIN32",
+            "jobs": 8,
+            "configuration": "Release"
         }
     ]
 }

@@ -310,7 +310,9 @@ model_t *Mod_LoadModel (model_t *mod, qboolean crash)
 	// fill it in
 	//
 
-	// call the apropriate loader	
+	// call the apropriate loader
+	mod->needload = nl_present;
+	
 	switch (LittleLong(*(unsigned *)buf))
 	{
 	case IDALIASHEADER:
