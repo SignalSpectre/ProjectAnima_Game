@@ -571,7 +571,7 @@ cmodel_t *CM_LoadMap (char *name, qboolean clientload, unsigned *checksum)
 	unsigned		*buf;
 	int				i;
 	dheader_t		header;
-	int				length;
+	size_t			length;
 	static unsigned	last_checksum;
 
 	map_noareas = Cvar_Get ("map_noareas", "0", 0);
@@ -1764,7 +1764,7 @@ and recalculates the area connections
 */
 void	CM_ReadPortalState (file_t *file)
 {
-	printf("CM_ReadPortalState size: %i\n", sizeof(cm.portalopen));
+	printf("CM_ReadPortalState size: %zu\n", sizeof(cm.portalopen));
 	FS_FRead (file, cm.portalopen, sizeof(cm.portalopen));
 	FloodAreaConnections ();
 }

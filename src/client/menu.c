@@ -2407,7 +2407,7 @@ extern int Developer_searchpath (int who);
 void M_Menu_Credits_f( void )
 {
 	int		n;
-	int		count;
+	size_t	count;
 	char	*p;
 	int		isdeveloper = 0;
 
@@ -3095,7 +3095,7 @@ void StartServer_MenuInit( void )
 	char	longname[MAX_TOKEN_CHARS];
 	char	scratch[200];
 	char	*buffer, *parseptr;
-	int		length;
+	size_t	length;
 	int		i, j, l;
 
 	static const char *dm_coop_names[] =
@@ -4134,6 +4134,8 @@ static qboolean PlayerConfig_ScanDirectories( void )
 	}
 	if ( dirnames )
 		FreeFileList( dirnames, ndirs );
+
+	return true;
 }
 
 static int pmicmpfnc( const void *_a, const void *_b )

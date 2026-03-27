@@ -121,6 +121,8 @@ qboolean	NET_CompareAdr (netadr_t a, netadr_t b)
 			return true;
 		return false;
 	}
+
+	return false;
 }
 
 /*
@@ -151,6 +153,8 @@ qboolean	NET_CompareBaseAdr (netadr_t a, netadr_t b)
 			return true;
 		return false;
 	}
+
+	return false;
 }
 
 char	*NET_AdrToString (netadr_t a)
@@ -254,7 +258,7 @@ idnewt:28000
 192.246.40.70:28000
 =============
 */
-qboolean	NET_StringToAdr (char *s, netadr_t *a)
+qboolean	NET_StringToAdr (char *s, netadr_t *a, unsigned short dport)
 {
 	struct sockaddr sadr;
 	
@@ -468,7 +472,7 @@ int NET_IPSocket (char *net_interface, int port)
 {
 	int					newsocket;
 	struct sockaddr_in	address;
-	qboolean			_true = true;
+	unsigned long		_true = 1;
 	int					i = 1;
 	int					err;
 

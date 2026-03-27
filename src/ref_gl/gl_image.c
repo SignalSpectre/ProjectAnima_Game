@@ -434,7 +434,7 @@ void LoadPCX (char *filename, byte **pic, byte **palette, int *width, int *heigh
 	byte	*raw;
 	pcx_t	*pcx;
 	int		x, y;
-	int		len;
+	size_t	len;
 	int		dataByte, runLength;
 	byte	*out, *pix;
 
@@ -554,7 +554,7 @@ void LoadTGA (char *name, byte **pic, int *width, int *height)
 	int		row, column;
 	byte	*buf_p;
 	byte	*buffer;
-	int		length;
+	size_t	length;
 	TargaHeader		targa_header;
 	byte			*targa_rgba;
 	byte tmp[2];
@@ -1231,6 +1231,8 @@ qboolean GL_Upload8 (byte *data, int width, int height,  qboolean mipmap, qboole
 
 		return GL_Upload32 (trans, width, height, mipmap);
 	}
+
+	return true;
 }
 
 

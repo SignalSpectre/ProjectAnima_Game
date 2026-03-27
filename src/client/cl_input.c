@@ -458,7 +458,7 @@ CL_SendCmd
 */
 void CL_SendCmd (void)
 {
-	sizebuf_t	buf;
+	sizebuf_t	buf = {0};
 	byte		data[128];
 	int			i;
 	usercmd_t	*cmd, *oldcmd;

@@ -1660,6 +1660,7 @@ struct model_s	*R_RegisterModel (char *name);
 struct image_s	*R_RegisterSkin (char *name);
 void R_SetSky (char *name, float rotate, vec3_t axis);
 void	R_EndRegistration (void);
+void	R_ClearRegistered (void);
 
 void	R_RenderFrame (refdef_t *fd);
 
@@ -1691,6 +1692,7 @@ refexport_t GetRefAPI (refimport_t rimp )
 	re.RegisterPic = Draw_FindPic;
 	re.SetSky = R_SetSky;
 	re.EndRegistration = R_EndRegistration;
+	re.ClearRegistered = R_ClearRegistered;
 
 	re.RenderFrame = R_RenderFrame;
 

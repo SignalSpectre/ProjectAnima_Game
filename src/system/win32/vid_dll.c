@@ -50,6 +50,10 @@ viddef_t	viddef;				// global video state; used by other modules
 HINSTANCE	reflib_library;		// Handle to refresh DLL 
 qboolean	reflib_active = 0;
 
+#ifdef REF_HARD_LINKED
+refexport_t GetRefAPI (refimport_t rimp);
+#endif
+
 HWND        cl_hwnd;            // Main window handle for life of program
 
 #define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
@@ -120,7 +124,7 @@ void VID_Printf (int print_level, char *fmt, ...)
 	static qboolean	inupdate;
 	
 	va_start (argptr,fmt);
-	vsprintf (msg,fmt,argptr);
+	vsnprintf(msg, MAXPRINTMSG, fmt, argptr);
 	va_end (argptr);
 
 	if (print_level == PRINT_ALL)
@@ -557,7 +561,10 @@ VID_LoadRefresh
 qboolean VID_LoadRefresh( char *name )
 {
 	refimport_t	ri;
+
+#ifndef REF_HARD_LINKED
 	GetRefAPI_t	GetRefAPI;
+#endif
 	
 	if ( reflib_active )
 	{
@@ -565,6 +572,7 @@ qboolean VID_LoadRefresh( char *name )
 		VID_FreeReflib ();
 	}
 
+#ifndef REF_HARD_LINKED
 	Com_Printf( "------- Loading %s -------\n", name );
 
 	if ( ( reflib_library = LoadLibrary( name ) ) == 0 )
@@ -573,6 +581,7 @@ qboolean VID_LoadRefresh( char *name )
 
 		return false;
 	}
+#endif
 
 	ri.Cmd_AddCommand = Cmd_AddCommand;
 	ri.Cmd_RemoveCommand = Cmd_RemoveCommand;
@@ -593,8 +602,22 @@ qboolean VID_LoadRefresh( char *name )
 	ri.Vid_MenuInit = VID_MenuInit;
 	ri.Vid_NewWindow = VID_NewWindow;
 
+	ri.Hunk_Alloc = Hunk_Alloc;
+	ri.Hunk_AllocName = Hunk_AllocName;
+	ri.Hunk_HighAllocName = Hunk_HighAllocName;
+	ri.Hunk_LowMark = Hunk_LowMark;
+	ri.Hunk_FreeToLowMark = Hunk_FreeToLowMark;
+	ri.Hunk_HighMark = Hunk_HighMark;
+	ri.Hunk_FreeToHighMark = Hunk_FreeToHighMark;
+	ri.Hunk_TempAlloc = Hunk_TempAlloc;
+	ri.Cache_Check = Cache_Check;
+	ri.Cache_Free = Cache_Free;
+	ri.Cache_Alloc = Cache_Alloc;
+
+#ifndef REF_HARD_LINKED
 	if ( ( GetRefAPI = (void *) GetProcAddress( reflib_library, "GetRefAPI" ) ) == 0 )
 		Com_Error( ERR_FATAL, "GetProcAddress failed on %s", name );
+#endif
 
 	re = GetRefAPI( ri );
 

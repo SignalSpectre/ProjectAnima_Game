@@ -66,7 +66,7 @@ void SCR_LoadPCX (char *filename, byte **pic, byte **palette, int *width, int *h
 	byte	*raw;
 	pcx_t	*pcx;
 	int		x, y;
-	int		len;
+	size_t	len;
 	int		dataByte, runLength;
 	byte	*pix;
 	int		lowmark;

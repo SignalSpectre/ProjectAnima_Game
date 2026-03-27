@@ -88,7 +88,7 @@ sfxcache_t *S_LoadSound (sfx_t *s)
 	int		outsamples;
 	float	stepscale;
 	sfxcache_t	*sc;
-	int		size;
+	size_t	size;
 	char	*name;
 
 	if (s->name[0] == '*')
@@ -233,7 +233,7 @@ void DumpChunks(void)
 		memcpy (str, data_p, 4);
 		data_p += 4;
 		iff_chunk_len = GetLittleLong();
-		Com_Printf ("0x%x : %s (%d)\n", (int)(data_p - 4), str, iff_chunk_len);
+		Com_Printf ("0x%x : %s (%d)\n", (size_t)(data_p - 4), str, iff_chunk_len);
 		data_p += (iff_chunk_len + 1) & ~1;
 	} while (data_p < iff_end);
 }

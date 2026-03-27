@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gl_local.h"
 
 model_t	*loadmodel;
-int		modfilelen;
+size_t		modfilelen;
 char	loadname[32];	// for hunk tags
 
 void Mod_LoadSpriteModel (model_t *mod, void *buffer);
