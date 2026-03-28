@@ -47,8 +47,10 @@ cvar_t		*vid_fullscreen;
 
 // Global variables used internally by this module
 viddef_t	viddef;				// global video state; used by other modules
+#ifndef REF_HARD_LINKED
 HINSTANCE	reflib_library;		// Handle to refresh DLL 
 qboolean	reflib_active = 0;
+#endif
 
 #ifdef REF_HARD_LINKED
 refexport_t GetRefAPI (refimport_t rimp);
@@ -356,7 +358,9 @@ LONG WINAPI MainWndProc (
 
 			AppActivate( fActive != WA_INACTIVE, fMinimized);
 
+#ifndef REF_HARD_LINKED
 			if ( reflib_active )
+#endif
 				re.AppActivate( !( fActive == WA_INACTIVE ) );
 		}
         return DefWindowProc (hWnd, uMsg, wParam, lParam);
@@ -546,11 +550,13 @@ void VID_NewWindow ( int width, int height)
 
 void VID_FreeReflib (void)
 {
+#ifndef REF_HARD_LINKED
 	if ( !FreeLibrary( reflib_library ) )
 		Com_Error( ERR_FATAL, "Reflib FreeLibrary failed" );
 	memset (&re, 0, sizeof(re));
 	reflib_library = NULL;
 	reflib_active  = false;
+#endif
 }
 
 /*
@@ -564,7 +570,7 @@ qboolean VID_LoadRefresh( char *name )
 
 #ifndef REF_HARD_LINKED
 	GetRefAPI_t	GetRefAPI;
-#endif
+
 	
 	if ( reflib_active )
 	{
@@ -572,7 +578,6 @@ qboolean VID_LoadRefresh( char *name )
 		VID_FreeReflib ();
 	}
 
-#ifndef REF_HARD_LINKED
 	Com_Printf( "------- Loading %s -------\n", name );
 
 	if ( ( reflib_library = LoadLibrary( name ) ) == 0 )
@@ -621,11 +626,13 @@ qboolean VID_LoadRefresh( char *name )
 
 	re = GetRefAPI( ri );
 
+#ifndef REF_HARD_LINKED
 	if (re.api_version != API_VERSION)
 	{
 		VID_FreeReflib ();
 		Com_Error (ERR_FATAL, "%s has incompatible api_version", name);
 	}
+#endif
 
 	if ( re.Init( global_hInstance, MainWndProc ) == -1 )
 	{
@@ -635,7 +642,9 @@ qboolean VID_LoadRefresh( char *name )
 	}
 
 	Com_Printf( "------------------------------------\n");
+#ifndef REF_HARD_LINKED
 	reflib_active = true;
+#endif
 
 //======
 //PGM
@@ -775,11 +784,16 @@ VID_Shutdown
 */
 void VID_Shutdown (void)
 {
+#ifndef REF_HARD_LINKED
 	if ( reflib_active )
 	{
 		re.Shutdown ();
 		VID_FreeReflib ();
 	}
+#else
+	re.Shutdown ();
+	VID_FreeReflib ();
+#endif
 }
 
 
