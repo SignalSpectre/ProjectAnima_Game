@@ -2,39 +2,51 @@
     "version": 8,
     "configurePresets": [
         {
-            "name": "Release_PSP",
-            "displayName": "Release_PSP",
+            "name": "PSP",
+            "displayName": "PSP",
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_TOOLCHAIN_FILE": "$env{PSPDEV}/psp/share/pspdev.cmake",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "TARGET_SYSTEM": "PSP",
+                "HARDWARE_RENDERER": true
             }
         },
         {
-            "name": "Debug_PSP",
-            "displayName": "Debug_PSP",
-            "inherits": [
-                "Release_PSP"
-            ],
+            "name": "WIN32",
+            "displayName": "WIN32",
+            "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_TOOLCHAIN_FILE": "$env{PSPDEV}/psp/share/pspdev.cmake",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
-                "BUILD_PRX": "ON"
+                "TARGET_SYSTEM": "WIN32",
+                "HARDWARE_RENDERER": true
             }
         }
     ],
     "buildPresets": [
         {
-            "name": "BuildDebug_PSP",
-            "configurePreset": "Debug_PSP",
-            "jobs": 8
+            "name": "Debug_PSP",
+            "configurePreset": "PSP",
+            "jobs": 8,
+            "configuration": "Debug"
         },
         {
-            "name": "BuildRelease_PSP",
-            "configurePreset": "Release_PSP",
-            "jobs": 8
+            "name": "Release_PSP",
+            "configurePreset": "PSP",
+            "jobs": 8,
+            "configuration": "Release"
+        },
+        {
+            "name": "Debug_WIN32",
+            "configurePreset": "WIN32",
+            "jobs": 8,
+            "configuration": "Debug"
+        },
+        {
+            "name": "Release_WIN32",
+            "configurePreset": "WIN32",
+            "jobs": 8,
+            "configuration": "Release"
         }
     ]
 }
