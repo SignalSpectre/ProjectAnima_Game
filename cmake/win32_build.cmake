@@ -13,7 +13,7 @@ set(SOURCES_QUAKE2_REF_SPECIFIC
 )
 endif()
 
-set(SOURCES_QUAKE2_WIN32
+set(SOURCES_QUAKE2_SYS
     ${WIN32_DIR}/cd_win.c
     ${WIN32_DIR}/net_wins.c
     ${WIN32_DIR}/qgl_win.c
@@ -27,7 +27,7 @@ set(SOURCES_QUAKE2_WIN32
     ${SOURCES_QUAKE2_REF_SPECIFIC}
 )
 
-set(SOURCES_REF_HW_WIN32
+set(SOURCES_REF_HW_SYS
     ${REF_GL_DIR}/gl_draw.c
     ${REF_GL_DIR}/gl_image.c
     ${REF_GL_DIR}/gl_light.c
@@ -39,13 +39,13 @@ set(SOURCES_REF_HW_WIN32
     ${REF_GL_DIR}/gl_warp.c
 )
 
-set(SOURCES_REF_SW_WIN32 
+set(SOURCES_REF_SW_SYS
 )
 
-set(TARGET_COMPILE_OPTIONS_WIN32
+set(TARGET_COMPILE_OPTIONS_SYS
 )
 
-set(TARGET_LINK_LIBS_WIN32
+set(TARGET_LINK_LIBS_SYS
     Ws2_32.lib
     Winmm.lib
 )

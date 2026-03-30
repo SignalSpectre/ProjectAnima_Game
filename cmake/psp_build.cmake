@@ -6,7 +6,7 @@ if(HARDWARE_RENDERER)
     set(REF gu)
 endif()
 
-set(SOURCES_QUAKE2_PSP
+set(SOURCES_QUAKE2_SYS
     ${PSP_DIR}/debug_psp.c
 	${PSP_DIR}/sys_psp.c
 	${PSP_DIR}/in_psp.c
@@ -19,7 +19,7 @@ set(SOURCES_QUAKE2_PSP
     ${PSP_DIR}/cd_mp3.c
 )
 
-set(SOURCES_REF_HW_PSP
+set(SOURCES_REF_HW_SYS
     ${REF_GU_DIR}/gu_render.c
 	${REF_GU_DIR}/gu_vram.c
 	${REF_GU_DIR}/gu_extension.c
@@ -35,15 +35,15 @@ set(SOURCES_REF_HW_PSP
 	${REF_GU_DIR}/gu_warp.c
 )
 
-set(SOURCES_REF_SW_PSP
+set(SOURCES_REF_SW_SYS
     ${PSP_DIR}/swimp_psp.c
 )
 
-set(TARGET_COMPILE_OPTIONS_PSP
+set(TARGET_COMPILE_OPTIONS_SYS
     -mno-gpopt
 )
 
-set(TARGET_LINK_LIBS_PSP
+set(TARGET_LINK_LIBS_SYS
     pspwlan
     pspnet_adhoc
     pspnet_adhocctl

@@ -15,14 +15,14 @@ endif()
 
 if ("${TARGET_SYSTEM}" MATCHES "PSP")
 enable_language(ASM)
+include(cmake/psp_build.cmake)
+set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/install/PSP)
 elseif("${TARGET_SYSTEM}" MATCHES "WIN32")
 enable_language(ASM_MASM)
 set(TARGET_OPTIONS WIN32)
-endif()
-
-## target systems
-include(cmake/psp_build.cmake)
 include(cmake/win32_build.cmake)
+set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/install/WIN32)
+endif()
 
 ###############################
 ## Define common directories
@@ -152,37 +152,21 @@ set(SOURCES_REF_SW_COMMON
 )
 
 ################################################
-## Create source lists based on target system
+## Create source lists
 ################################################
-if ("${TARGET_SYSTEM}" MATCHES "PSP")
 set(SOURCES_QUAKE2
 	${SOURCES_QUAKE2_COMMON}
-	${SOURCES_QUAKE2_PSP}
+	${SOURCES_QUAKE2_SYS}
 )
 
 set(SOURCES_REF_SW
-	${SOURCES_REF_SW_PSP}
 	${SOURCES_REF_SW_COMMON}
+	${SOURCES_REF_SW_SYS}
 )
 
 set(SOURCES_REF_HW
-	${SOURCES_REF_HW_PSP}
+	${SOURCES_REF_HW_SYS}
 )
-elseif ("${TARGET_SYSTEM}" MATCHES "WIN32")
-set(SOURCES_QUAKE2
-	${SOURCES_QUAKE2_COMMON}
-	${SOURCES_QUAKE2_WIN32}
-)
-
-set(SOURCES_REF_SW
-	${SOURCES_REF_SW_WIN32}
-	${SOURCES_REF_SW_COMMON}
-)
-
-set(SOURCES_REF_HW
-	${SOURCES_REF_HW_WIN32}
-)
-endif()
 
 #######################################################
 ## Create REF source list based on selected renderer
@@ -191,24 +175,6 @@ if(${HARDWARE_RENDERER})
 	set(SOURCES_REF ${SOURCES_REF_HW})
 else()
 	set(SOURCES_REF ${SOURCES_REF_SW})
-endif()
-
-###################################
-## Target system compile options
-##################################
-if("${TARGET_SYSTEM}" MATCHES "PSP")
-set(TARGET_COMPILE_OPTS ${TARGET_COMPILE_OPTIONS_PSP})
-elseif ("${TARGET_SYSTEM}" MATCHES "WIN32")
-set(TARGET_COMPILE_OPTS ${TARGET_COMPILE_OPTIONS_WIN32})
-endif()
-
-##################################
-## Target system link libraries
-##################################
-if("${TARGET_SYSTEM}" MATCHES "PSP")
-set(TARGET_LINK_LIBS ${TARGET_LINK_LIBS_PSP})
-elseif ("${TARGET_SYSTEM}" MATCHES "WIN32")
-set(TARGET_LINK_LIBS ${TARGET_LINK_LIBS_WIN32})
 endif()
 
 ################
@@ -220,7 +186,7 @@ target_compile_options(
     ${PROJECT_NAME}
     PRIVATE
     -Dstricmp=strcasecmp
-	${TARGET_COMPILE_OPTS}
+	${TARGET_COMPILE_OPTS_SYS}
 )
 
 target_compile_definitions(
@@ -242,7 +208,7 @@ target_include_directories(
 target_link_libraries(
     ${PROJECT_NAME}
     PRIVATE
-    ${TARGET_LINK_LIBS}
+    ${TARGET_LINK_LIBS_SYS}
 )
 
 ######################
@@ -257,5 +223,11 @@ create_pbp_file(
     TITLE ${PROJECT_NAME}
     VERSION ${PROJECT_VERSION}
 )
-#elseif ("${TARGET_SYSTEM}" MATCHES "WIN32")
+elseif ("${TARGET_SYSTEM}" MATCHES "WIN32")
 endif()
+
+######################
+## Install
+######################
+install(TARGETS ${PROJECT_NAME} DESTINATION .)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/baseq2 DESTINATION baseq2)
