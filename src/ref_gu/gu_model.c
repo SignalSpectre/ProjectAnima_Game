@@ -1162,10 +1162,11 @@ void Mod_LoadSpriteModel (model_t *mod, void *buffer)
 {
 	dsprite_t	*sprin, *sprout;
 	int			i;
+	int hunkStart;
 
 	sprin = (dsprite_t *)buffer;
+	hunkStart = ri.Hunk_LowMark();
 	sprout = ri.Hunk_AllocName (modfilelen, loadname);
-    mod->cache.data = sprout;
 
 	sprout->ident = LittleLong (sprin->ident);
 	sprout->version = LittleLong (sprin->version);
@@ -1192,6 +1193,13 @@ void Mod_LoadSpriteModel (model_t *mod, void *buffer)
 	}
 
 	mod->type = mod_sprite;
+
+	ri.Cache_Alloc (&mod->cache, modfilelen, loadname);
+	if (!mod->cache.data)
+		return;
+	memcpy (mod->cache.data, sprout, modfilelen);
+
+	ri.Hunk_FreeToLowMark(hunkStart);
 }
 
 //=============================================================================
