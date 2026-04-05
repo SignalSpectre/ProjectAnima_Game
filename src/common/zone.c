@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "qcommon.h"
 #include <malloc.h>
 
-#define	ZONE_SIZE_MAIN	(2 * 1024 * 1024)
+#define	ZONE_SIZE_MAIN	(3 * 1024 * 1024)
 #define	ZONE_SIZE_SMALL	(256 * 1024)
 
 #define	ZONEID	0x1d4a11
@@ -285,7 +285,6 @@ void *Z_TagMalloc (int size, int tag)
 	size = (size + 7) & ~7;		// align to 8-byte boundary
 #endif
 
-
 	base = rover = zone->rover;
 	start = base->prev;
 
@@ -300,7 +299,6 @@ void *Z_TagMalloc (int size, int tag)
 #else
 			Sys_Error ("Z_Malloc: failed on allocation of %i bytes", size);
 #endif
-
 		}
 		if (rover->tag)
 			base = rover = rover->next;

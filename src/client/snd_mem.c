@@ -130,9 +130,9 @@ sfxcache_t *S_LoadSound (sfx_t *s)
 
 	stepscale = (float)info.rate / dma.speed;
 	outsamples = info.samples / stepscale;
-	outsamples = outsamples * dma.width * info.channels;
+	// outsamples = outsamples * dma.width * info.channels;
 
-	sc = Cache_Alloc ( &s->cache, outsamples + sizeof(sfxcache_t), s->name);
+	sc = Cache_Alloc ( &s->cache, (outsamples * dma.width) + sizeof(sfxcache_t), s->name);
 	if (!sc)
 		return NULL;
 
