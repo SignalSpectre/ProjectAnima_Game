@@ -1,111 +1,28 @@
-# **PSP Quake2**
+# Project Anima (game source code)
 
-Порт Quake 2 (Id Software, Inc.) для PlayStation Portable.
+Source code for Project Anima (final name tbd), a third person action/adventure game about defeating our own failures.
 
-Полная совместимость со всеми моделями PSP.
+This is a hobby project and will probably never be released (I have a very bad track records on completing the projects I start.)
 
-## Выполнено:
+## Licensing
 
-* Загрузка входных параметров(argv) из файла start.cmd
-* Менеджер памяти из Quake 1
-* Рендеринг: аппаратный, программный
-* Звук: audio, vaudio
-* Сетевая игра: Infrastructure, Adhoc
-* Проигрывание MP3
-* Разделяемые игровые модули
+All source code is release under the GNU Public License as required by the original Quake 2 source code.
 
-## Текущие задачи:
+## Technical details
 
-* MIP-текстурирование в аппаратном рендеринге
+The code is a modified version of CrowBar's Quake2 port for PSP with added WIN32 support and all the needed modifications to make the game I want to make.
 
-## Сборка:
+I "updated" the build system from makefiles to cmake to make it easier to develop on Windows and then deploy for the PSP.
 
-### Параметры(первое значение по умолчанию):
+### Building for Windows
 
-	BUILD(debug, release, prof) - Режим сборки
-	REF              (soft, gu) - Рендеринг: soft - программный, gu - аппаратный
-	GAME            (base, ctf) - Игра
-	USE_VAUDIO           (0, 1) - Вывод звука через vaudio
-	USE_CDMP3            (0, 1) - MP3 проигрыватель
-	USE_STDIN            (0, 1) - Ввод команд через tty режим PSPLink
+For Windows the expeirence should be pretty straightforward (unless I messed something up): the project doesn't depend on third party libraries other then the Windows ones and opengl (the software renderer is not enabled and will be removed soon) and everything comes preconfigured to run with VSCode out of the box.
 
-### Пример:
+So basically you just need to clone the repo, open the folder with VSCode and everything should work fine is you have the CMake Tools extension added.
 
-#### Сборка:
+### Building for PSP
 
-	make -j8 BUILD=release REF=gu USE_CDMP3=1
+Building for PSP is slightly more involved in which you need to first setup the PSPDev SDK in a Linux environment (either a Virtual Machine or WSL).<br>
+After that is done you can used VSCode as with Windows.
 
-> Для сборки с параметром `USE_VAUDIO=1`, требуется библиотека [libpspvaudio](https://github.com/Crow-bar/libpspvaudio)
-
-#### Очистка:
-
-	make clean-all
-
-#### Сборка и очистка:
-
-	make install -j8 INSTALL_DIR=dist BUILD=release REF=gu USE_CDMP3=1
-
-
-## Установка:
-
-1) Скопировать файл `EBOOT.PBP` в `ms0:/PSP/GAME/Quake2`
-2) Скопировать папку `baseq2` из оригинальной игры для PC в `ms0:/PSP/GAME/Quake2`
-3) Для работы mp3 проигрывателя необходимо скопировать треки в папку `ms0:/PSP/GAME/Quake2/baseq2/music`
-   треки должны иметь название `Track01.mp3, Track02.mp3 .. Track99.mp3` от 1 до 99.
-
-
-#
-
-
-# **PSP Quake2(EN)**
-
-A port of Quake 2 (Id Software, Inc.) for PlayStation Portable.
-
-Fully compatible with all PSP models.
-
-## Completed:
-
-* Loading input parameters(argv) from the start.cmd file
-* Memory Manager from Quake 1
-* Rendering: hardware, software
-* Sound: audio, vaudio
-* Network game: Infrastructure, Adhoc
-* MP3 playback
-* Shared game modules
-
-## Current tasks:
-
-* MIP texturing in hardware rendering
-
-## Assembly:
-
-### Parameters(the first default value):
-	BUILD(debug, release, prof) - Build mode
-	REF              (soft, gu) - Rendering: soft - software, gu - hardware
-	GAME            (base, ctf) - Game
-	USE_VAUDIO           (0, 1) - Audio output via vaudio
-	USE_CDMP3            (0, 1) - MP3 player
-	USE_STDIN            (0, 1) - Entering commands via PSPLink tty mode
-
-### Example:
-
-#### make:
-	make -j8 BUILD=release REF=gu USE_CDMP3=1
-> To build with the `USE_VAUDIO=1` parameter, the [libpspvaudio] library is required(https://github.com/Crow-bar/libpspvaudio )
-
-#### clean:
-
-	make clean-all
-
-#### make & install:
-
-	make install -j8 INSTALL_DIR=dist BUILD=release REF=gu USE_CDMP3=1
-
-## Installation:
-
-1) Copy the file "EBOOT.PBP" to the folder `ms0:/PSP/GAME/Quake2`
-2) Copy the "baseq2" folder from the original PC game to `ms0:/PSP/GAME/Quake2`.
-3) To play music, you need to copy the tracks to the following folder: `ms0:/PSP/GAME/Quake2/baseq2/music`.
-The files should be named Track01.mp3, Track02.mp3 ... Track99.mp3 (from 1 to 99).
-
-#
+If you have a Windows PC I suggest using WSL instead of a Virtual Machine since you can put the project somewhere  on your filesystem and access it from WSL ending up using the same repo both for Windows builds and PSP builds (much better than keeping one copy of the repo on Windows and one on the virtual machine while trying to keep them always up to date).

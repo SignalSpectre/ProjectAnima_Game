@@ -1,0 +1,6 @@
+[
+    {
+        "name": "PSPDEV Toolchain",
+        "toolchainFile": "~/pspdev/psp/share/pspdev.cmake"
+    }
+]

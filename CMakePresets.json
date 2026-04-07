@@ -1,0 +1,52 @@
+{
+    "version": 8,
+    "configurePresets": [
+        {
+            "name": "PSP",
+            "displayName": "PSP",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "$env{PSPDEV}/psp/share/pspdev.cmake",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "TARGET_SYSTEM": "PSP",
+                "HARDWARE_RENDERER": true
+            }
+        },
+        {
+            "name": "WIN32",
+            "displayName": "WIN32",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "TARGET_SYSTEM": "WIN32",
+                "HARDWARE_RENDERER": true
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "Debug_PSP",
+            "configurePreset": "PSP",
+            "jobs": 8,
+            "configuration": "Debug"
+        },
+        {
+            "name": "Release_PSP",
+            "configurePreset": "PSP",
+            "jobs": 8,
+            "configuration": "Release"
+        },
+        {
+            "name": "Debug_WIN32",
+            "configurePreset": "WIN32",
+            "jobs": 8,
+            "configuration": "Debug"
+        },
+        {
+            "name": "Release_WIN32",
+            "configurePreset": "WIN32",
+            "jobs": 8,
+            "configuration": "Release"
+        }
+    ]
+}
