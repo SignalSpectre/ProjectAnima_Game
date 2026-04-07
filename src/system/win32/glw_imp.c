@@ -59,7 +59,6 @@ static qboolean VerifyDriver( void )
 /*
 ** VID_CreateWindow
 */
-#define	WINDOW_CLASS_NAME	"Quake 2"
 
 qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 {
@@ -80,7 +79,7 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
     wc.hCursor       = LoadCursor (NULL,IDC_ARROW);
 	wc.hbrBackground = (void *)COLOR_GRAYTEXT;
     wc.lpszMenuName  = 0;
-    wc.lpszClassName = WINDOW_CLASS_NAME;
+    wc.lpszClassName = APP_NAME;
 
     if (!RegisterClass (&wc) )
 		ri.Sys_Error (ERR_FATAL, "Couldn't register window class");
@@ -121,8 +120,8 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 
 	glw_state.hWnd = CreateWindowEx (
 		 exstyle, 
-		 WINDOW_CLASS_NAME,
-		 "Quake 2",
+		 APP_NAME,
+		 APP_NAME,
 		 stylebits,
 		 x, y, w, h,
 		 NULL,
@@ -327,7 +326,7 @@ void GLimp_Shutdown( void )
 		glw_state.log_fp = 0;
 	}
 
-	UnregisterClass (WINDOW_CLASS_NAME, glw_state.hInstance);
+	UnregisterClass (APP_NAME, glw_state.hInstance);
 
 	if ( gl_state.fullscreen )
 	{

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 
 project(
-    PSPQuake2
+    ProjectAnima
     VERSION 0.0.1
     LANGUAGES C
 )
@@ -177,6 +177,11 @@ else()
 	set(SOURCES_REF ${SOURCES_REF_SW})
 endif()
 
+###########################
+## Create configure file
+###########################
+configure_file(${PROJECT_SOURCE_DIR}/cmake/config.h.in ${PROJECT_BINARY_DIR}/include/config.h)
+
 ################
 ## Add target
 ################
@@ -202,6 +207,7 @@ target_compile_definitions(
 target_include_directories(
     ${PROJECT_NAME}
     PRIVATE
+	${PROJECT_BINARY_DIR}/include
     ${PROJECT_SOURCE_DIR}/src
 )
 
@@ -230,4 +236,4 @@ endif()
 ## Install
 ######################
 install(TARGETS ${PROJECT_NAME} DESTINATION .)
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/baseq2 DESTINATION baseq2)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/baseq2 DESTINATION .)

@@ -75,8 +75,8 @@ void Con_ToggleConsole_f (void)
 	}
 
 	if (cls.state == ca_disconnected)
-	{	// start the demo loop again
-		Cbuf_AddText ("d1\n");
+	{	// go back to welcome level
+		Cbuf_AddText ("welcome_level\n");
 		return;
 	}
 

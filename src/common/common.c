@@ -1365,7 +1365,8 @@ void Qcommon_Init (int argc, char **argv)
 
 	FS_InitFilesystem ();
 
-	Cbuf_AddText ("exec default.cfg\n");
+	//Cbuf_AddText ("exec default.cfg\n");
+	Cbuf_AddText ("exec anima_default.cfg\n");
 	Cbuf_AddText ("exec config.cfg\n");
 
 	Cbuf_AddEarlyCommands (true);
@@ -1411,7 +1412,7 @@ void Qcommon_Init (int argc, char **argv)
 	if (!Cbuf_AddLateCommands ())
 	{	// if the user didn't give any commands, run default action
 		if (!dedicated->value)
-			Cbuf_AddText ("d1\n");
+			Cbuf_AddText ("welcome_level\n");
 		else
 			Cbuf_AddText ("dedicated_start\n");
 		Cbuf_Execute ();
