@@ -413,7 +413,7 @@ MAIN MENU
 
 =======================================================================
 */
-#define	MAIN_ITEMS	5
+#define	MAIN_ITEMS	3
 
 
 void M_Main_Draw (void)
@@ -427,8 +427,6 @@ void M_Main_Draw (void)
 	char litname[80];
 	char *names[] =
 	{
-		"m_main_game",
-		"m_main_multiplayer",
 		"m_main_options",
 		"m_main_video",
 		"m_main_quit",
@@ -497,22 +495,14 @@ const char *M_Main_Key (int key)
 		switch (m_main_cursor)
 		{
 		case 0:
-			M_Menu_Game_f ();
-			break;
-
-		case 1:
-			M_Menu_Multiplayer_f();
-			break;
-
-		case 2:
 			M_Menu_Options_f ();
 			break;
 
-		case 3:
+		case 1:
 			M_Menu_Video_f ();
 			break;
 
-		case 4:
+		case 2:
 			M_Menu_Quit_f ();
 			break;
 		}
@@ -606,6 +596,7 @@ static void NetApFunc( void *unused )
 
 #endif
 
+#if 0 // NOT INTERESTED IN MULTIPLAYER
 static void Multiplayer_MenuDraw (void)
 {
 	M_Banner( "m_banner_multiplayer" );
@@ -736,6 +727,7 @@ void M_Menu_Multiplayer_f( void )
 	Multiplayer_MenuInit();
 	M_PushMenu( Multiplayer_MenuDraw, Multiplayer_MenuKey );
 }
+#endif
 
 /*
 =======================================================================
@@ -2522,6 +2514,7 @@ static void CreditsFunc( void *unused )
 	M_Menu_Credits_f();
 }
 
+#if 0 // TODO: enable the game menu one day when the time comes
 void Game_MenuInit( void )
 {
 	static const char *difficulty_names[] =
@@ -2609,6 +2602,7 @@ void M_Menu_Game_f (void)
 	M_PushMenu( Game_MenuDraw, Game_MenuKey );
 	m_game_cursor = 1;
 }
+#endif
 
 /*
 =============================================================================
@@ -4515,17 +4509,17 @@ M_Init
 void M_Init (void)
 {
 	Cmd_AddCommand ("menu_main", M_Menu_Main_f);
-	Cmd_AddCommand ("menu_game", M_Menu_Game_f);
-		Cmd_AddCommand ("menu_loadgame", M_Menu_LoadGame_f);
-		Cmd_AddCommand ("menu_savegame", M_Menu_SaveGame_f);
-		Cmd_AddCommand ("menu_joinserver", M_Menu_JoinServer_f);
-			Cmd_AddCommand ("menu_addressbook", M_Menu_AddressBook_f);
-		Cmd_AddCommand ("menu_startserver", M_Menu_StartServer_f);
-			Cmd_AddCommand ("menu_dmoptions", M_Menu_DMOptions_f);
-		Cmd_AddCommand ("menu_playerconfig", M_Menu_PlayerConfig_f);
-			Cmd_AddCommand ("menu_downloadoptions", M_Menu_DownloadOptions_f);
+	// Cmd_AddCommand ("menu_game", M_Menu_Game_f);
+		//Cmd_AddCommand ("menu_loadgame", M_Menu_LoadGame_f);
+		//Cmd_AddCommand ("menu_savegame", M_Menu_SaveGame_f);
+		//Cmd_AddCommand ("menu_joinserver", M_Menu_JoinServer_f);
+			// Cmd_AddCommand ("menu_addressbook", M_Menu_AddressBook_f);
+		// Cmd_AddCommand ("menu_startserver", M_Menu_StartServer_f);
+			// Cmd_AddCommand ("menu_dmoptions", M_Menu_DMOptions_f);
+		// Cmd_AddCommand ("menu_playerconfig", M_Menu_PlayerConfig_f);
+			// Cmd_AddCommand ("menu_downloadoptions", M_Menu_DownloadOptions_f);
 		Cmd_AddCommand ("menu_credits", M_Menu_Credits_f );
-	Cmd_AddCommand ("menu_multiplayer", M_Menu_Multiplayer_f );
+	// Cmd_AddCommand ("menu_multiplayer", M_Menu_Multiplayer_f );
 	Cmd_AddCommand ("menu_video", M_Menu_Video_f);
 	Cmd_AddCommand ("menu_options", M_Menu_Options_f);
 #ifdef __psp__
