@@ -297,26 +297,17 @@ x,y.  The pic will extend to the left of x,
 and both above and below y.
 =============
 */
-void M_DrawCursor( int x, int y, int f )
+void M_DrawCursor( int x, int y)
 {
 	char	cursorname[80];
 	static qboolean cached;
 
 	if ( !cached )
 	{
-		int i;
-
-		for ( i = 0; i < NUM_CURSOR_FRAMES; i++ )
-		{
-			Com_sprintf( cursorname, sizeof( cursorname ), "m_cursor%d", i );
-
-			re.RegisterPic( cursorname );
-		}
+		re.RegisterPic("m_cursor0");
 		cached = true;
 	}
-
-	Com_sprintf( cursorname, sizeof(cursorname), "m_cursor%d", f );
-	re.DrawPic( x, y, cursorname );
+	re.DrawPic( x, y, "m_cursor0");
 }
 
 void M_DrawTextBox (int x, int y, int width, int lines)
@@ -454,7 +445,7 @@ void M_Main_Draw (void)
 	strcat( litname, "_sel" );
 	re.DrawPic( xoffset, ystart + m_main_cursor * 40 + 13, litname );
 
-	M_DrawCursor( xoffset - 25, ystart + m_main_cursor * 40 + 11, (int)(cls.realtime / 100)%NUM_CURSOR_FRAMES );
+	M_DrawCursor( xoffset - 25, ystart + m_main_cursor * 40 + 11);
 
 	re.DrawGetPicSize( &w, &h, "m_main_plaque" );
 	re.DrawPic( xoffset - 30 - w, ystart, "m_main_plaque" );
