@@ -199,7 +199,6 @@ target_compile_definitions(
     PRIVATE
     REF_HARD_LINKED
     GAME_HARD_LINKED
-    EXT_VERSION="${PROJECT_VERSION}"
     $<$<CONFIG:Debug>:DEBUG
                       USE_STDIN>
 )
