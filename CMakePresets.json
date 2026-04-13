@@ -2,14 +2,24 @@
     "version": 8,
     "configurePresets": [
         {
-            "name": "PSP",
-            "displayName": "PSP",
+            "name": "PSP_Release",
+            "displayName": "PSP_Release",
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
                 "CMAKE_TOOLCHAIN_FILE": "$env{PSPDEV}/psp/share/pspdev.cmake",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
                 "TARGET_SYSTEM": "PSP",
                 "HARDWARE_RENDERER": true
+            }
+        },
+        {
+            "name": "PSP_Debug",
+            "displayName": "PSP_Debug",
+            "inherits": [
+                "PSP_Release"
+            ],
+            "cacheVariables": {
+                "BUILD_PRX": true
             }
         },
         {
@@ -26,13 +36,13 @@
     "buildPresets": [
         {
             "name": "Debug_PSP",
-            "configurePreset": "PSP",
+            "configurePreset": "PSP_Debug",
             "jobs": 8,
             "configuration": "Debug"
         },
         {
             "name": "Release_PSP",
-            "configurePreset": "PSP",
+            "configurePreset": "PSP_Release",
             "jobs": 8,
             "configuration": "Release"
         },

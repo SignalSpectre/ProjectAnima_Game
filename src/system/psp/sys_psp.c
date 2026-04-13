@@ -45,7 +45,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "system/psp/debug_psp.h"
 #include "common/qcommon.h"
 
-PSP_MODULE_INFO ("PSPQuake2", PSP_MODULE_USER, 0, 1);
+PSP_MODULE_INFO (APP_NAME, PSP_MODULE_USER, 0, 1);
 PSP_MAIN_THREAD_ATTR (THREAD_ATTR_USER | THREAD_ATTR_VFPU);
 //PSP_HEAP_SIZE_KB (-1 * 1024);
 PSP_HEAP_SIZE_KB (-1280);
