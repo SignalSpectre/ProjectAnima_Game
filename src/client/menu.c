@@ -297,26 +297,17 @@ x,y.  The pic will extend to the left of x,
 and both above and below y.
 =============
 */
-void M_DrawCursor( int x, int y, int f )
+void M_DrawCursor( int x, int y)
 {
 	char	cursorname[80];
 	static qboolean cached;
 
 	if ( !cached )
 	{
-		int i;
-
-		for ( i = 0; i < NUM_CURSOR_FRAMES; i++ )
-		{
-			Com_sprintf( cursorname, sizeof( cursorname ), "m_cursor%d", i );
-
-			re.RegisterPic( cursorname );
-		}
+		re.RegisterPic("m_cursor0");
 		cached = true;
 	}
-
-	Com_sprintf( cursorname, sizeof(cursorname), "m_cursor%d", f );
-	re.DrawPic( x, y, cursorname );
+	re.DrawPic( x, y, "m_cursor0");
 }
 
 void M_DrawTextBox (int x, int y, int width, int lines)
@@ -413,7 +404,7 @@ MAIN MENU
 
 =======================================================================
 */
-#define	MAIN_ITEMS	5
+#define	MAIN_ITEMS	3
 
 
 void M_Main_Draw (void)
@@ -427,8 +418,6 @@ void M_Main_Draw (void)
 	char litname[80];
 	char *names[] =
 	{
-		"m_main_game",
-		"m_main_multiplayer",
 		"m_main_options",
 		"m_main_video",
 		"m_main_quit",
@@ -456,7 +445,7 @@ void M_Main_Draw (void)
 	strcat( litname, "_sel" );
 	re.DrawPic( xoffset, ystart + m_main_cursor * 40 + 13, litname );
 
-	M_DrawCursor( xoffset - 25, ystart + m_main_cursor * 40 + 11, (int)(cls.realtime / 100)%NUM_CURSOR_FRAMES );
+	M_DrawCursor( xoffset - 25, ystart + m_main_cursor * 40 + 11);
 
 	re.DrawGetPicSize( &w, &h, "m_main_plaque" );
 	re.DrawPic( xoffset - 30 - w, ystart, "m_main_plaque" );
@@ -497,22 +486,14 @@ const char *M_Main_Key (int key)
 		switch (m_main_cursor)
 		{
 		case 0:
-			M_Menu_Game_f ();
-			break;
-
-		case 1:
-			M_Menu_Multiplayer_f();
-			break;
-
-		case 2:
 			M_Menu_Options_f ();
 			break;
 
-		case 3:
+		case 1:
 			M_Menu_Video_f ();
 			break;
 
-		case 4:
+		case 2:
 			M_Menu_Quit_f ();
 			break;
 		}
@@ -606,6 +587,7 @@ static void NetApFunc( void *unused )
 
 #endif
 
+#if 0 // NOT INTERESTED IN MULTIPLAYER
 static void Multiplayer_MenuDraw (void)
 {
 	M_Banner( "m_banner_multiplayer" );
@@ -736,6 +718,7 @@ void M_Menu_Multiplayer_f( void )
 	Multiplayer_MenuInit();
 	M_PushMenu( Multiplayer_MenuDraw, Multiplayer_MenuKey );
 }
+#endif
 
 /*
 =======================================================================
@@ -2522,6 +2505,7 @@ static void CreditsFunc( void *unused )
 	M_Menu_Credits_f();
 }
 
+#if 0 // TODO: enable the game menu one day when the time comes
 void Game_MenuInit( void )
 {
 	static const char *difficulty_names[] =
@@ -2609,6 +2593,7 @@ void M_Menu_Game_f (void)
 	M_PushMenu( Game_MenuDraw, Game_MenuKey );
 	m_game_cursor = 1;
 }
+#endif
 
 /*
 =============================================================================
@@ -4515,17 +4500,17 @@ M_Init
 void M_Init (void)
 {
 	Cmd_AddCommand ("menu_main", M_Menu_Main_f);
-	Cmd_AddCommand ("menu_game", M_Menu_Game_f);
-		Cmd_AddCommand ("menu_loadgame", M_Menu_LoadGame_f);
-		Cmd_AddCommand ("menu_savegame", M_Menu_SaveGame_f);
-		Cmd_AddCommand ("menu_joinserver", M_Menu_JoinServer_f);
-			Cmd_AddCommand ("menu_addressbook", M_Menu_AddressBook_f);
-		Cmd_AddCommand ("menu_startserver", M_Menu_StartServer_f);
-			Cmd_AddCommand ("menu_dmoptions", M_Menu_DMOptions_f);
-		Cmd_AddCommand ("menu_playerconfig", M_Menu_PlayerConfig_f);
-			Cmd_AddCommand ("menu_downloadoptions", M_Menu_DownloadOptions_f);
+	// Cmd_AddCommand ("menu_game", M_Menu_Game_f);
+		//Cmd_AddCommand ("menu_loadgame", M_Menu_LoadGame_f);
+		//Cmd_AddCommand ("menu_savegame", M_Menu_SaveGame_f);
+		//Cmd_AddCommand ("menu_joinserver", M_Menu_JoinServer_f);
+			// Cmd_AddCommand ("menu_addressbook", M_Menu_AddressBook_f);
+		// Cmd_AddCommand ("menu_startserver", M_Menu_StartServer_f);
+			// Cmd_AddCommand ("menu_dmoptions", M_Menu_DMOptions_f);
+		// Cmd_AddCommand ("menu_playerconfig", M_Menu_PlayerConfig_f);
+			// Cmd_AddCommand ("menu_downloadoptions", M_Menu_DownloadOptions_f);
 		Cmd_AddCommand ("menu_credits", M_Menu_Credits_f );
-	Cmd_AddCommand ("menu_multiplayer", M_Menu_Multiplayer_f );
+	// Cmd_AddCommand ("menu_multiplayer", M_Menu_Multiplayer_f );
 	Cmd_AddCommand ("menu_video", M_Menu_Video_f);
 	Cmd_AddCommand ("menu_options", M_Menu_Options_f);
 #ifdef __psp__
