@@ -283,9 +283,6 @@ void chick_pain (edict_t *self, edict_t *other, float kick, int damage)
 	else
 		gi.sound (self, CHAN_VOICE, sound_pain3, 1, ATTN_NORM, 0);
 
-	if (skill->value == 3)
-		return;		// no pain anims in nightmare
-
 	if (damage <= 10)
 		self->monsterinfo.currentmove = &chick_move_pain1;
 	else if (damage <= 25)
@@ -625,12 +622,6 @@ void chick_sight(edict_t *self, edict_t *other)
 */
 void SP_monster_chick (edict_t *self)
 {
-	if (deathmatch->value)
-	{
-		G_FreeEdict (self);
-		return;
-	}
-
 	sound_missile_prelaunch	= gi.soundindex ("chick/chkatck1.wav");	
 	sound_missile_launch	= gi.soundindex ("chick/chkatck2.wav");	
 	sound_melee_swing		= gi.soundindex ("chick/chkatck3.wav");	

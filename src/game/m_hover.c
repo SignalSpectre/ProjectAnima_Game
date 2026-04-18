@@ -494,9 +494,6 @@ void hover_pain (edict_t *self, edict_t *other, float kick, int damage)
 
 	self->pain_debounce_time = level.time + 3;
 
-	if (skill->value == 3)
-		return;		// no pain anims in nightmare
-
 	if (damage <= 25)
 	{
 		if (random() < 0.5)
@@ -572,12 +569,6 @@ void hover_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 */
 void SP_monster_hover (edict_t *self)
 {
-	if (deathmatch->value)
-	{
-		G_FreeEdict (self);
-		return;
-	}
-
 	sound_pain1 = gi.soundindex ("hover/hovpain1.wav");	
 	sound_pain2 = gi.soundindex ("hover/hovpain2.wav");	
 	sound_death1 = gi.soundindex ("hover/hovdeth1.wav");	

@@ -161,25 +161,8 @@ qboolean Pickup_Powerup (edict_t *ent, edict_t *other)
 	int		quantity;
 
 	quantity = other->client->pers.inventory[ITEM_INDEX(ent->item)];
-	if ((skill->value == 1 && quantity >= 2) || (skill->value >= 2 && quantity >= 1))
-		return false;
-
-	if ((coop->value) && (ent->item->flags & IT_STAY_COOP) && (quantity > 0))
-		return false;
 
 	other->client->pers.inventory[ITEM_INDEX(ent->item)]++;
-
-	if (deathmatch->value)
-	{
-		if (!(ent->spawnflags & DROPPED_ITEM) )
-			SetRespawn (ent, ent->item->quantity);
-		if (((int)dmflags->value & DF_INSTANT_ITEMS) || ((ent->item->use == Use_Quad) && (ent->spawnflags & DROPPED_PLAYER_ITEM)))
-		{
-			if ((ent->item->use == Use_Quad) && (ent->spawnflags & DROPPED_PLAYER_ITEM))
-				quad_drop_timeout_hack = (ent->nextthink - level.time) / FRAMETIME;
-			ent->item->use (other, ent->item);
-		}
-	}
 
 	return true;
 }
@@ -196,14 +179,8 @@ void Drop_General (edict_t *ent, gitem_t *item)
 
 qboolean Pickup_Adrenaline (edict_t *ent, edict_t *other)
 {
-	if (!deathmatch->value)
-		other->max_health += 1;
-
 	if (other->health < other->max_health)
 		other->health = other->max_health;
-
-	if (!(ent->spawnflags & DROPPED_ITEM) && (deathmatch->value))
-		SetRespawn (ent, ent->item->quantity);
 
 	return true;
 }
@@ -211,9 +188,6 @@ qboolean Pickup_Adrenaline (edict_t *ent, edict_t *other)
 qboolean Pickup_AncientHead (edict_t *ent, edict_t *other)
 {
 	other->max_health += 2;
-
-	if (!(ent->spawnflags & DROPPED_ITEM) && (deathmatch->value))
-		SetRespawn (ent, ent->item->quantity);
 
 	return true;
 }
@@ -249,9 +223,6 @@ qboolean Pickup_Bandolier (edict_t *ent, edict_t *other)
 		if (other->client->pers.inventory[index] > other->client->pers.max_shells)
 			other->client->pers.inventory[index] = other->client->pers.max_shells;
 	}
-
-	if (!(ent->spawnflags & DROPPED_ITEM) && (deathmatch->value))
-		SetRespawn (ent, ent->item->quantity);
 
 	return true;
 }
@@ -327,9 +298,6 @@ qboolean Pickup_Pack (edict_t *ent, edict_t *other)
 		if (other->client->pers.inventory[index] > other->client->pers.max_slugs)
 			other->client->pers.inventory[index] = other->client->pers.max_slugs;
 	}
-
-	if (!(ent->spawnflags & DROPPED_ITEM) && (deathmatch->value))
-		SetRespawn (ent, ent->item->quantity);
 
 	return true;
 }
@@ -421,23 +389,6 @@ void	Use_Silencer (edict_t *ent, gitem_t *item)
 
 qboolean Pickup_Key (edict_t *ent, edict_t *other)
 {
-	if (coop->value)
-	{
-		if (strcmp(ent->classname, "key_power_cube") == 0)
-		{
-			if (other->client->pers.power_cubes & ((ent->spawnflags & 0x0000ff00)>> 8))
-				return false;
-			other->client->pers.inventory[ITEM_INDEX(ent->item)]++;
-			other->client->pers.power_cubes |= ((ent->spawnflags & 0x0000ff00) >> 8);
-		}
-		else
-		{
-			if (other->client->pers.inventory[ITEM_INDEX(ent->item)])
-				return false;
-			other->client->pers.inventory[ITEM_INDEX(ent->item)] = 1;
-		}
-		return true;
-	}
 	other->client->pers.inventory[ITEM_INDEX(ent->item)]++;
 	return true;
 }
@@ -487,9 +438,7 @@ qboolean Pickup_Ammo (edict_t *ent, edict_t *other)
 	qboolean	weapon;
 
 	weapon = (ent->item->flags & IT_WEAPON);
-	if ( (weapon) && ( (int)dmflags->value & DF_INFINITE_AMMO ) )
-		count = 1000;
-	else if (ent->count)
+	if (ent->count)
 		count = ent->count;
 	else
 		count = ent->item->quantity;
@@ -501,12 +450,10 @@ qboolean Pickup_Ammo (edict_t *ent, edict_t *other)
 
 	if (weapon && !oldcount)
 	{
-		if (other->client->pers.weapon != ent->item && ( !deathmatch->value || other->client->pers.weapon == FindItem("blaster") ) )
+		if (other->client->pers.weapon != ent->item && other->client->pers.weapon == FindItem("blaster") )
 			other->client->newweapon = ent->item;
 	}
 
-	if (!(ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM)) && (deathmatch->value))
-		SetRespawn (ent, 30);
 	return true;
 }
 
@@ -547,10 +494,7 @@ void MegaHealth_think (edict_t *self)
 		return;
 	}
 
-	if (!(self->spawnflags & DROPPED_ITEM) && (deathmatch->value))
-		SetRespawn (self, 20);
-	else
-		G_FreeEdict (self);
+	G_FreeEdict (self);
 }
 
 qboolean Pickup_Health (edict_t *ent, edict_t *other)
@@ -575,11 +519,6 @@ qboolean Pickup_Health (edict_t *ent, edict_t *other)
 		ent->flags |= FL_RESPAWN;
 		ent->svflags |= SVF_NOCLIENT;
 		ent->solid = SOLID_NOT;
-	}
-	else
-	{
-		if (!(ent->spawnflags & DROPPED_ITEM) && (deathmatch->value))
-			SetRespawn (ent, 30);
 	}
 
 	return true;
@@ -677,9 +616,6 @@ qboolean Pickup_Armor (edict_t *ent, edict_t *other)
 		}
 	}
 
-	if (!(ent->spawnflags & DROPPED_ITEM) && (deathmatch->value))
-		SetRespawn (ent, 20);
-
 	return true;
 }
 
@@ -731,15 +667,6 @@ qboolean Pickup_PowerArmor (edict_t *ent, edict_t *other)
 	quantity = other->client->pers.inventory[ITEM_INDEX(ent->item)];
 
 	other->client->pers.inventory[ITEM_INDEX(ent->item)]++;
-
-	if (deathmatch->value)
-	{
-		if (!(ent->spawnflags & DROPPED_ITEM) )
-			SetRespawn (ent, ent->item->quantity);
-		// auto-use for DM only if we didn't already have one
-		if (!quantity)
-			ent->item->use (other, ent->item);
-	}
 
 	return true;
 }
@@ -811,7 +738,7 @@ void Touch_Item (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf
 	if (!taken)
 		return;
 
-	if (!((coop->value) &&  (ent->item->flags & IT_STAY_COOP)) || (ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM)))
+	if (ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM))
 	{
 		if (ent->flags & FL_RESPAWN)
 			ent->flags &= ~FL_RESPAWN;
@@ -833,11 +760,6 @@ static void drop_temp_touch (edict_t *ent, edict_t *other, cplane_t *plane, csur
 static void drop_make_touchable (edict_t *ent)
 {
 	ent->touch = Touch_Item;
-	if (deathmatch->value)
-	{
-		ent->nextthink = level.time + 29;
-		ent->think = G_FreeEdict;
-	}
 }
 
 edict_t *Drop_Item (edict_t *ent, gitem_t *item)
@@ -1069,55 +991,6 @@ void SpawnItem (edict_t *ent, gitem_t *item)
 			ent->spawnflags = 0;
 			gi.dprintf("%s at %s has invalid spawnflags set\n", ent->classname, vtos(ent->s.origin));
 		}
-	}
-
-	// some items will be prevented in deathmatch
-	if (deathmatch->value)
-	{
-		if ( (int)dmflags->value & DF_NO_ARMOR )
-		{
-			if (item->pickup == Pickup_Armor || item->pickup == Pickup_PowerArmor)
-			{
-				G_FreeEdict (ent);
-				return;
-			}
-		}
-		if ( (int)dmflags->value & DF_NO_ITEMS )
-		{
-			if (item->pickup == Pickup_Powerup)
-			{
-				G_FreeEdict (ent);
-				return;
-			}
-		}
-		if ( (int)dmflags->value & DF_NO_HEALTH )
-		{
-			if (item->pickup == Pickup_Health || item->pickup == Pickup_Adrenaline || item->pickup == Pickup_AncientHead)
-			{
-				G_FreeEdict (ent);
-				return;
-			}
-		}
-		if ( (int)dmflags->value & DF_INFINITE_AMMO )
-		{
-			if ( (item->flags == IT_AMMO) || (strcmp(ent->classname, "weapon_bfg") == 0) )
-			{
-				G_FreeEdict (ent);
-				return;
-			}
-		}
-	}
-
-	if (coop->value && (strcmp(ent->classname, "key_power_cube") == 0))
-	{
-		ent->spawnflags |= (1 << (8 + level.power_cubes));
-		level.power_cubes++;
-	}
-
-	// don't let them drop items that stay in a coop game
-	if ((coop->value) && (item->flags & IT_STAY_COOP))
-	{
-		item->drop = NULL;
 	}
 
 	ent->item = item;
@@ -2120,11 +1993,6 @@ tank commander's head
 */
 void SP_item_health (edict_t *self)
 {
-	if ( deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH) )
-	{
-		G_FreeEdict (self);
-		return;
-	}
 
 	self->model = "models/items/healing/medium/tris.md2";
 	self->count = 10;
@@ -2136,11 +2004,6 @@ void SP_item_health (edict_t *self)
 */
 void SP_item_health_small (edict_t *self)
 {
-	if ( deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH) )
-	{
-		G_FreeEdict (self);
-		return;
-	}
 
 	self->model = "models/items/healing/stimpack/tris.md2";
 	self->count = 2;
@@ -2153,11 +2016,6 @@ void SP_item_health_small (edict_t *self)
 */
 void SP_item_health_large (edict_t *self)
 {
-	if ( deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH) )
-	{
-		G_FreeEdict (self);
-		return;
-	}
 
 	self->model = "models/items/healing/large/tris.md2";
 	self->count = 25;
@@ -2169,12 +2027,6 @@ void SP_item_health_large (edict_t *self)
 */
 void SP_item_health_mega (edict_t *self)
 {
-	if ( deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH) )
-	{
-		G_FreeEdict (self);
-		return;
-	}
-
 	self->model = "models/items/mega_h/tris.md2";
 	self->count = 100;
 	SpawnItem (self, FindItem ("Health"));

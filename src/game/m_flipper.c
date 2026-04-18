@@ -231,9 +231,6 @@ void flipper_pain (edict_t *self, edict_t *other, float kick, int damage)
 		return;
 
 	self->pain_debounce_time = level.time + 3;
-	
-	if (skill->value == 3)
-		return;		// no pain anims in nightmare
 
 	n = (rand() + 1) % 2;
 	if (n == 0)
@@ -360,12 +357,6 @@ void flipper_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 */
 void SP_monster_flipper (edict_t *self)
 {
-	if (deathmatch->value)
-	{
-		G_FreeEdict (self);
-		return;
-	}
-
 	sound_pain1		= gi.soundindex ("flipper/flppain1.wav");	
 	sound_pain2		= gi.soundindex ("flipper/flppain2.wav");	
 	sound_death		= gi.soundindex ("flipper/flpdeth1.wav");	

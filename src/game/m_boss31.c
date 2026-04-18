@@ -449,8 +449,6 @@ void jorg_pain (edict_t *self, edict_t *other, float kick, int damage)
 
 
 	self->pain_debounce_time = level.time + 3;
-	if (skill->value == 3)
-		return;		// no pain anims in nightmare
 
 	if (damage <= 50)
 	{
@@ -695,12 +693,6 @@ void MakronPrecache (void);
 */
 void SP_monster_jorg (edict_t *self)
 {
-	if (deathmatch->value)
-	{
-		G_FreeEdict (self);
-		return;
-	}
-
 	sound_pain1 = gi.soundindex ("boss3/bs3pain1.wav");
 	sound_pain2 = gi.soundindex ("boss3/bs3pain2.wav");
 	sound_pain3 = gi.soundindex ("boss3/bs3pain3.wav");

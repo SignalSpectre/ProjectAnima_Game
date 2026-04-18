@@ -574,8 +574,6 @@ void floater_pain (edict_t *self, edict_t *other, float kick, int damage)
 		return;
 
 	self->pain_debounce_time = level.time + 3;
-	if (skill->value == 3)
-		return;		// no pain anims in nightmare
 
 	n = (rand() + 1) % 3;
 	if (n == 0)
@@ -610,12 +608,6 @@ void floater_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 */
 void SP_monster_floater (edict_t *self)
 {
-	if (deathmatch->value)
-	{
-		G_FreeEdict (self);
-		return;
-	}
-
 	sound_attack2 = gi.soundindex ("floater/fltatck2.wav");
 	sound_attack3 = gi.soundindex ("floater/fltatck3.wav");
 	sound_death1 = gi.soundindex ("floater/fltdeth1.wav");

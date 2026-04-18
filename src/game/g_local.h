@@ -509,10 +509,6 @@ extern	edict_t			*g_edicts;
 #define crandom()	(2.0 * (random() - 0.5))
 
 extern	cvar_t	*maxentities;
-extern	cvar_t	*deathmatch;
-extern	cvar_t	*coop;
-extern	cvar_t	*dmflags;
-extern	cvar_t	*skill;
 extern	cvar_t	*fraglimit;
 extern	cvar_t	*timelimit;
 extern	cvar_t	*password;
@@ -538,7 +534,6 @@ extern	cvar_t	*bob_roll;
 
 extern	cvar_t	*sv_cheats;
 extern	cvar_t	*maxclients;
-extern	cvar_t	*maxspectators;
 
 extern	cvar_t	*flood_msgs;
 extern	cvar_t	*flood_persecond;
@@ -761,7 +756,6 @@ void player_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 // g_svcmds.c
 //
 void	ServerCommand (void);
-qboolean SV_FilterPacket (char *from);
 
 //
 // p_view.c
@@ -856,8 +850,6 @@ typedef struct
 
 	int			game_helpchanged;
 	int			helpchanged;
-
-	qboolean	spectator;			// client is a spectator
 } client_persistant_t;
 
 // client data that stays across deathmatch respawns
@@ -867,8 +859,7 @@ typedef struct
 	int			enterframe;			// level.framenum the client entered the game
 	int			score;				// frags, etc
 	vec3_t		cmd_angles;			// angles sent over in the last command
-
-	qboolean	spectator;			// client is a spectator
+	
 } client_respawn_t;
 
 // this structure is cleared on each PutClientInServer(),

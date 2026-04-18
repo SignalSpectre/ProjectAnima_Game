@@ -497,9 +497,6 @@ void insane_pain (edict_t *self, edict_t *other, float kick, int damage)
 		l = 100;
 	gi.sound (self, CHAN_VOICE, gi.soundindex (va("player/male/pain%i_%i.wav", l, r)), 1, ATTN_IDLE, 0);
 
-	if (skill->value == 3)
-		return;		// no pain anims in nightmare
-
 	// Don't go into pain frames if crucified.
 	if (self->spawnflags & 8)
 	{
@@ -620,14 +617,6 @@ void insane_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 */
 void SP_misc_insane (edict_t *self)
 {
-//	static int skin = 0;	//@@
-
-	if (deathmatch->value)
-	{
-		G_FreeEdict (self);
-		return;
-	}
-
 	sound_fist = gi.soundindex ("insane/insane11.wav");
 	sound_shake = gi.soundindex ("insane/insane5.wav");
 	sound_moan = gi.soundindex ("insane/insane7.wav");

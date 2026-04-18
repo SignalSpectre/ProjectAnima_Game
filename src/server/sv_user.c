@@ -421,8 +421,7 @@ void SV_Nextserver (void)
 {
 	char	*v;
 
-	//ZOID, ss_pic can be nextserver'd in coop mode
-	if (sv.state == ss_game || (sv.state == ss_pic && !Cvar_VariableValue("coop")))
+	if (sv.state == ss_game)
 		return;		// can't nextserver while playing a normal game
 
 	svs.spawncount++;	// make sure another doesn't sneak in

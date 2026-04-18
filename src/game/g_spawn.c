@@ -520,18 +520,8 @@ parsing textual entity definitions out of an ent file.
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 {
 	edict_t		*ent;
-	int			inhibit;
 	char		*com_token;
 	int			i;
-	float		skill_level;
-
-	skill_level = floor (skill->value);
-	if (skill_level < 0)
-		skill_level = 0;
-	if (skill_level > 3)
-		skill_level = 3;
-	if (skill->value != skill_level)
-		gi.cvar_forceset("skill", va("%f", skill_level));
 
 	SaveClientData ();
 
@@ -548,7 +538,6 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		g_edicts[i+1].client = game.clients + i;
 
 	ent = NULL;
-	inhibit = 0;
 
 // parse ents
 	while (1)
@@ -566,55 +555,8 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 			ent = G_Spawn ();
 		entities = ED_ParseEdict (entities, ent);
 
-		// yet another map hack
-		if (!Q_stricmp(level.mapname, "command") && !Q_stricmp(ent->classname, "trigger_once") && !Q_stricmp(ent->model, "*27"))
-			ent->spawnflags &= ~SPAWNFLAG_NOT_HARD;
-
-		// remove things (except the world) from different skill levels or deathmatch
-		if (ent != g_edicts)
-		{
-			if (deathmatch->value)
-			{
-				if ( ent->spawnflags & SPAWNFLAG_NOT_DEATHMATCH )
-				{
-					G_FreeEdict (ent);	
-					inhibit++;
-					continue;
-				}
-			}
-			else
-			{
-				if ( /* ((coop->value) && (ent->spawnflags & SPAWNFLAG_NOT_COOP)) || */
-					((skill->value == 0) && (ent->spawnflags & SPAWNFLAG_NOT_EASY)) ||
-					((skill->value == 1) && (ent->spawnflags & SPAWNFLAG_NOT_MEDIUM)) ||
-					(((skill->value == 2) || (skill->value == 3)) && (ent->spawnflags & SPAWNFLAG_NOT_HARD))
-					)
-					{
-						G_FreeEdict (ent);	
-						inhibit++;
-						continue;
-					}
-			}
-
-			ent->spawnflags &= ~(SPAWNFLAG_NOT_EASY|SPAWNFLAG_NOT_MEDIUM|SPAWNFLAG_NOT_HARD|SPAWNFLAG_NOT_COOP|SPAWNFLAG_NOT_DEATHMATCH);
-		}
-
 		ED_CallSpawn (ent);
 	}	
-
-	gi.dprintf ("%i entities inhibited\n", inhibit);
-
-#if 0
-	i = 1;
-	ent = EDICT_NUM(i);
-	while (i < globals.num_edicts) {
-		if (ent->inuse != 0 || ent->inuse != 1)
-			Com_DPrintf("Invalid entity %d\n", i);
-		i++, ent++;
-	}
-#endif
-
-	G_FindTeams ();
 
 	PlayerTrail_Init ();
 }
@@ -765,13 +707,6 @@ char *dm_statusbar =
 "yt 2 "
 "num 3 14 "
 
-// spectator
-"if 17 "
-  "xv 0 "
-  "yb -58 "
-  "string2 \"SPECTATOR MODE\" "
-"endif "
-
 // chase camera
 "if 16 "
   "xv 0 "
@@ -835,14 +770,7 @@ void SP_worldspawn (edict_t *ent)
 
 	gi.configstring (CS_MAXCLIENTS, va("%i", (int)(maxclients->value) ) );
 
-	// status bar program
-	if (deathmatch->value)
-		gi.configstring (CS_STATUSBAR, dm_statusbar);
-	else
-		gi.configstring (CS_STATUSBAR, single_statusbar);
-
-	//---------------
-
+	gi.configstring (CS_STATUSBAR, single_statusbar);
 
 	// help icon for statusbar
 	gi.imageindex ("i_help");

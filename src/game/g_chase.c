@@ -29,18 +29,6 @@ void UpdateChaseCam(edict_t *ent)
 	vec3_t oldgoal;
 	vec3_t angles;
 
-	// is our chase target gone?
-	if (!ent->client->chase_target->inuse
-		|| ent->client->chase_target->client->resp.spectator) {
-		edict_t *old = ent->client->chase_target;
-		ChaseNext(ent);
-		if (ent->client->chase_target == old) {
-			ent->client->chase_target = NULL;
-			ent->client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
-			return;
-		}
-	}
-
 	targ = ent->client->chase_target;
 
 	VectorCopy(targ->s.origin, ownerv);
@@ -124,8 +112,6 @@ void ChaseNext(edict_t *ent)
 		e = g_edicts + i;
 		if (!e->inuse)
 			continue;
-		if (!e->client->resp.spectator)
-			break;
 	} while (e != ent->client->chase_target);
 
 	ent->client->chase_target = e;
@@ -148,8 +134,6 @@ void ChasePrev(edict_t *ent)
 		e = g_edicts + i;
 		if (!e->inuse)
 			continue;
-		if (!e->client->resp.spectator)
-			break;
 	} while (e != ent->client->chase_target);
 
 	ent->client->chase_target = e;
@@ -163,7 +147,7 @@ void GetChaseTarget(edict_t *ent)
 
 	for (i = 1; i <= maxclients->value; i++) {
 		other = g_edicts + i;
-		if (other->inuse && !other->client->resp.spectator) {
+		if (other->inuse) {
 			ent->client->chase_target = other;
 			ent->client->update_chase = true;
 			UpdateChaseCam(ent);

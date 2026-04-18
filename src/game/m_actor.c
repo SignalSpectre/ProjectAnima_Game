@@ -424,12 +424,6 @@ void actor_use (edict_t *self, edict_t *other, edict_t *activator)
 
 void SP_misc_actor (edict_t *self)
 {
-	if (deathmatch->value)
-	{
-		G_FreeEdict (self);
-		return;
-	}
-
 	if (!self->targetname)
 	{
 		gi.dprintf("untargeted %s at %s\n", self->classname, vtos(self->s.origin));

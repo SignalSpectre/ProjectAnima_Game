@@ -559,8 +559,7 @@ void P_FallingDamage (edict_t *ent)
 			damage = 1;
 		VectorSet (dir, 0, 0, 1);
 
-		if (!deathmatch->value || !((int)dmflags->value & DF_NO_FALLING) )
-			T_Damage (ent, world, world, dir, ent->s.origin, vec3_origin, damage, 0, 0, MOD_FALLING);
+		T_Damage (ent, world, world, dir, ent->s.origin, vec3_origin, damage, 0, 0, MOD_FALLING);
 	}
 	else
 	{
@@ -1055,11 +1054,7 @@ void ClientEndServerFrame (edict_t *ent)
 	// should be determined by the client
 	SV_CalcBlend (ent);
 
-	// chase cam stuff
-	if (ent->client->resp.spectator)
-		G_SetSpectatorStats(ent);
-	else
-		G_SetStats (ent);
+	G_SetStats (ent);
 	G_CheckChaseStats(ent);
 
 	G_SetClientEvent (ent);

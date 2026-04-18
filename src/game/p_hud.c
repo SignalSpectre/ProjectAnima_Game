@@ -31,8 +31,6 @@ INTERMISSION
 
 void MoveClientToIntermission (edict_t *ent)
 {
-	if (deathmatch->value || coop->value)
-		ent->client->showscores = true;
 	VectorCopy (level.intermission_origin, ent->s.origin);
 	ent->client->ps.pmove.origin[0] = level.intermission_origin[0]*8;
 	ent->client->ps.pmove.origin[1] = level.intermission_origin[1]*8;
@@ -59,15 +57,6 @@ void MoveClientToIntermission (edict_t *ent)
 	ent->s.effects = 0;
 	ent->s.sound = 0;
 	ent->solid = SOLID_NOT;
-
-	// add the layout
-
-	if (deathmatch->value || coop->value)
-	{
-		DeathmatchScoreboardMessage (ent, NULL);
-		gi.unicast (ent, true);
-	}
-
 }
 
 void BeginIntermission (edict_t *targ)
@@ -93,31 +82,9 @@ void BeginIntermission (edict_t *targ)
 	level.intermissiontime = level.time;
 	level.changemap = targ->map;
 
-	if (strstr(level.changemap, "*"))
+	if (!strstr(level.changemap, "*"))
 	{
-		if (coop->value)
-		{
-			for (i=0 ; i<maxclients->value ; i++)
-			{
-				client = g_edicts + 1 + i;
-				if (!client->inuse)
-					continue;
-				// strip players of all keys between units
-				for (n = 0; n < MAX_ITEMS; n++)
-				{
-					if (itemlist[n].flags & IT_KEY)
-						client->client->pers.inventory[n] = 0;
-				}
-			}
-		}
-	}
-	else
-	{
-		if (!deathmatch->value)
-		{
-			level.exitintermission = 1;		// go immediately to the next level
-			return;
-		}
+		level.exitintermission = 1;		// go immediately to the next level
 	}
 
 	level.exitintermission = 0;
@@ -181,7 +148,7 @@ void DeathmatchScoreboardMessage (edict_t *ent, edict_t *killer)
 	for (i=0 ; i<game.maxclients ; i++)
 	{
 		cl_ent = g_edicts + 1 + i;
-		if (!cl_ent->inuse || game.clients[i].resp.spectator)
+		if (!cl_ent->inuse)
 			continue;
 		score = game.clients[i].resp.score;
 		for (j=0 ; j<total ; j++)
@@ -277,18 +244,6 @@ void Cmd_Score_f (edict_t *ent)
 {
 	ent->client->showinventory = false;
 	ent->client->showhelp = false;
-
-	if (!deathmatch->value && !coop->value)
-		return;
-
-	if (ent->client->showscores)
-	{
-		ent->client->showscores = false;
-		return;
-	}
-
-	ent->client->showscores = true;
-	DeathmatchScoreboard (ent);
 }
 
 
@@ -304,14 +259,7 @@ void HelpComputer (edict_t *ent)
 	char	string[1024];
 	char	*sk;
 
-	if (skill->value == 0)
-		sk = "easy";
-	else if (skill->value == 1)
-		sk = "medium";
-	else if (skill->value == 2)
-		sk = "hard";
-	else
-		sk = "hard+";
+	sk = "noskill";
 
 	// send the layout
 	Com_sprintf (string, sizeof(string),
@@ -345,13 +293,6 @@ Display the current help message
 */
 void Cmd_Help_f (edict_t *ent)
 {
-	// this is for backwards compatability
-	if (deathmatch->value)
-	{
-		Cmd_Score_f (ent);
-		return;
-	}
-
 	ent->client->showinventory = false;
 	ent->client->showscores = false;
 
@@ -487,21 +428,10 @@ void G_SetStats (edict_t *ent)
 	//
 	ent->client->ps.stats[STAT_LAYOUTS] = 0;
 
-	if (deathmatch->value)
-	{
-		if (ent->client->pers.health <= 0 || level.intermissiontime
-			|| ent->client->showscores)
-			ent->client->ps.stats[STAT_LAYOUTS] |= 1;
-		if (ent->client->showinventory && ent->client->pers.health > 0)
-			ent->client->ps.stats[STAT_LAYOUTS] |= 2;
-	}
-	else
-	{
-		if (ent->client->showscores || ent->client->showhelp)
-			ent->client->ps.stats[STAT_LAYOUTS] |= 1;
-		if (ent->client->showinventory && ent->client->pers.health > 0)
-			ent->client->ps.stats[STAT_LAYOUTS] |= 2;
-	}
+	if (ent->client->showscores || ent->client->showhelp)
+		ent->client->ps.stats[STAT_LAYOUTS] |= 1;
+	if (ent->client->showinventory && ent->client->pers.health > 0)
+		ent->client->ps.stats[STAT_LAYOUTS] |= 2;
 
 	//
 	// frags

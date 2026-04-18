@@ -324,9 +324,6 @@ void medic_pain (edict_t *self, edict_t *other, float kick, int damage)
 
 	self->pain_debounce_time = level.time + 3;
 
-	if (skill->value == 3)
-		return;		// no pain anims in nightmare
-
 	if (random() < 0.5)
 	{
 		self->monsterinfo.currentmove = &medic_move_pain1;
@@ -717,12 +714,6 @@ qboolean medic_checkattack (edict_t *self)
 */
 void SP_monster_medic (edict_t *self)
 {
-	if (deathmatch->value)
-	{
-		G_FreeEdict (self);
-		return;
-	}
-
 	sound_idle1 = gi.soundindex ("medic/idle.wav");
 	sound_pain1 = gi.soundindex ("medic/medpain1.wav");
 	sound_pain2 = gi.soundindex ("medic/medpain2.wav");

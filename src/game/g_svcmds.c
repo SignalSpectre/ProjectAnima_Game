@@ -117,41 +117,6 @@ static qboolean StringToFilter (char *s, ipfilter_t *f)
 
 /*
 =================
-SV_FilterPacket
-=================
-*/
-qboolean SV_FilterPacket (char *from)
-{
-	int		i;
-	unsigned	in;
-	byte m[4];
-	char *p;
-
-	i = 0;
-	p = from;
-	while (*p && i < 4) {
-		m[i] = 0;
-		while (*p >= '0' && *p <= '9') {
-			m[i] = m[i]*10 + (*p - '0');
-			p++;
-		}
-		if (!*p || *p == ':')
-			break;
-		i++, p++;
-	}
-	
-	in = *(unsigned *)m;
-
-	for (i=0 ; i<numipfilters ; i++)
-		if ( (in & ipfilters[i].mask) == ipfilters[i].compare)
-			return (int)filterban->value;
-
-	return (int)!filterban->value;
-}
-
-
-/*
-=================
 SV_AddIP_f
 =================
 */

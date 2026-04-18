@@ -76,7 +76,6 @@ cvar_t	*cl_lightlevel;
 // userinfo
 //
 cvar_t	*info_password;
-cvar_t	*info_spectator;
 cvar_t	*name;
 cvar_t	*skin;
 cvar_t	*rate;
@@ -801,7 +800,6 @@ void CL_ParseStatusMessage (void)
 	s = MSG_ReadString(&net_message);
 
 	Com_Printf ("%s\n", s);
-	M_AddToServerList (net_from, s);
 }
 
 
@@ -1526,7 +1524,6 @@ void CL_InitLocal (void)
 	// userinfo
 	//
 	info_password = Cvar_Get ("password", "", CVAR_USERINFO);
-	info_spectator = Cvar_Get ("spectator", "0", CVAR_USERINFO);
 	name = Cvar_Get ("name", "unnamed", CVAR_USERINFO | CVAR_ARCHIVE);
 	skin = Cvar_Get ("skin", "male/grunt", CVAR_USERINFO | CVAR_ARCHIVE);
 	rate = Cvar_Get ("rate", "25000", CVAR_USERINFO | CVAR_ARCHIVE);	// FIXME

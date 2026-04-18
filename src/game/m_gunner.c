@@ -295,9 +295,6 @@ void gunner_pain (edict_t *self, edict_t *other, float kick, int damage)
 	else
 		gi.sound (self, CHAN_VOICE, sound_pain2, 1, ATTN_NORM, 0);
 
-	if (skill->value == 3)
-		return;		// no pain anims in nightmare
-
 	if (damage <= 10)
 		self->monsterinfo.currentmove = &gunner_move_pain3;
 	else if (damage <= 25)
@@ -365,11 +362,6 @@ void gunner_duck_down (edict_t *self)
 	if (self->monsterinfo.aiflags & AI_DUCKED)
 		return;
 	self->monsterinfo.aiflags |= AI_DUCKED;
-	if (skill->value >= 2)
-	{
-		if (random() > 0.5)
-			GunnerGrenade (self);
-	}
 
 	self->maxs[2] -= 32;
 	self->takedamage = DAMAGE_YES;
@@ -580,12 +572,6 @@ void gunner_refire_chain(edict_t *self)
 */
 void SP_monster_gunner (edict_t *self)
 {
-	if (deathmatch->value)
-	{
-		G_FreeEdict (self);
-		return;
-	}
-
 	sound_death = gi.soundindex ("gunner/death1.wav");	
 	sound_pain = gi.soundindex ("gunner/gunpain2.wav");	
 	sound_pain2 = gi.soundindex ("gunner/gunpain1.wav");	

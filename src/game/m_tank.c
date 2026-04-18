@@ -299,21 +299,9 @@ void tank_pain (edict_t *self, edict_t *other, float kick, int damage)
 	if (damage <= 30)
 		if (random() > 0.2)
 			return;
-	
-	// If hard or nightmare, don't go into pain while attacking
-	if ( skill->value >= 2)
-	{
-		if ( (self->s.frame >= FRAME_attak301) && (self->s.frame <= FRAME_attak330) )
-			return;
-		if ( (self->s.frame >= FRAME_attak101) && (self->s.frame <= FRAME_attak116) )
-			return;
-	}
 
 	self->pain_debounce_time = level.time + 3;
 	gi.sound (self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
-
-	if (skill->value == 3)
-		return;		// no pain anims in nightmare
 
 	if (damage <= 30)
 		self->monsterinfo.currentmove = &tank_move_pain1;
@@ -466,14 +454,6 @@ mmove_t tank_move_attack_post_blast = {FRAME_attak117, FRAME_attak122, tank_fram
 
 void tank_reattack_blaster (edict_t *self)
 {
-	if (skill->value >= 2)
-		if (visible (self, self->enemy))
-			if (self->enemy->health > 0)
-				if (random() <= 0.6)
-				{
-					self->monsterinfo.currentmove = &tank_move_reattack_blast;
-					return;
-				}
 	self->monsterinfo.currentmove = &tank_move_attack_post_blast;
 }
 
@@ -635,15 +615,6 @@ mmove_t tank_move_attack_chain = {FRAME_attak401, FRAME_attak429, tank_frames_at
 
 void tank_refire_rocket (edict_t *self)
 {
-	// Only on hard or nightmare
-	if ( skill->value >= 2 )
-		if (self->enemy->health > 0)
-			if (visible(self, self->enemy) )
-				if (random() <= 0.4)
-				{
-					self->monsterinfo.currentmove = &tank_move_attack_fire_rocket;
-					return;
-				}
 	self->monsterinfo.currentmove = &tank_move_attack_post_rocket;
 }
 
@@ -791,12 +762,6 @@ void tank_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage,
 */
 void SP_monster_tank (edict_t *self)
 {
-	if (deathmatch->value)
-	{
-		G_FreeEdict (self);
-		return;
-	}
-
 	self->s.modelindex = gi.modelindex ("models/monsters/tank/tris.md2");
 	VectorSet (self->mins, -32, -32, -16);
 	VectorSet (self->maxs, 32, 32, 72);

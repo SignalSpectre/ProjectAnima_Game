@@ -36,32 +36,8 @@ char *ClientTeam (edict_t *ent)
 	if (!p)
 		return value;
 
-	if ((int)(dmflags->value) & DF_MODELTEAMS)
-	{
-		*p = 0;
-		return value;
-	}
-
-	// if ((int)(dmflags->value) & DF_SKINTEAMS)
 	return ++p;
 }
-
-qboolean OnSameTeam (edict_t *ent1, edict_t *ent2)
-{
-	char	ent1Team [512];
-	char	ent2Team [512];
-
-	if (!((int)(dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
-		return false;
-
-	strcpy (ent1Team, ClientTeam (ent1));
-	strcpy (ent2Team, ClientTeam (ent2));
-
-	if (strcmp(ent1Team, ent2Team) == 0)
-		return true;
-	return false;
-}
-
 
 void SelectNextItem (edict_t *ent, int itflags)
 {
@@ -157,12 +133,6 @@ void Cmd_Give_f (edict_t *ent)
 	int			i;
 	qboolean	give_all;
 	edict_t		*it_ent;
-
-	if (deathmatch->value && !sv_cheats->value)
-	{
-		gi.cprintf (ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
-		return;
-	}
 
 	name = gi.args();
 
@@ -309,12 +279,6 @@ void Cmd_God_f (edict_t *ent)
 {
 	char	*msg;
 
-	if (deathmatch->value && !sv_cheats->value)
-	{
-		gi.cprintf (ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
-		return;
-	}
-
 	ent->flags ^= FL_GODMODE;
 	if (!(ent->flags & FL_GODMODE) )
 		msg = "godmode OFF\n";
@@ -337,13 +301,6 @@ argv(0) notarget
 void Cmd_Notarget_f (edict_t *ent)
 {
 	char	*msg;
-
-	if (deathmatch->value && !sv_cheats->value)
-	{
-		gi.cprintf (ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
-		return;
-	}
-
 	ent->flags ^= FL_NOTARGET;
 	if (!(ent->flags & FL_NOTARGET) )
 		msg = "notarget OFF\n";
@@ -364,13 +321,6 @@ argv(0) noclip
 void Cmd_Noclip_f (edict_t *ent)
 {
 	char	*msg;
-
-	if (deathmatch->value && !sv_cheats->value)
-	{
-		gi.cprintf (ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
-		return;
-	}
-
 	if (ent->movetype == MOVETYPE_NOCLIP)
 	{
 		ent->movetype = MOVETYPE_WALK;
@@ -779,96 +729,6 @@ void Cmd_Wave_f (edict_t *ent)
 	}
 }
 
-/*
-==================
-Cmd_Say_f
-==================
-*/
-void Cmd_Say_f (edict_t *ent, qboolean team, qboolean arg0)
-{
-	int		i, j;
-	edict_t	*other;
-	char	*p;
-	char	text[2048];
-	gclient_t *cl;
-
-	if (gi.argc () < 2 && !arg0)
-		return;
-
-	if (!((int)(dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
-		team = false;
-
-	if (team)
-		Com_sprintf (text, sizeof(text), "(%s): ", ent->client->pers.netname);
-	else
-		Com_sprintf (text, sizeof(text), "%s: ", ent->client->pers.netname);
-
-	if (arg0)
-	{
-		strcat (text, gi.argv(0));
-		strcat (text, " ");
-		strcat (text, gi.args());
-	}
-	else
-	{
-		p = gi.args();
-
-		if (*p == '"')
-		{
-			p++;
-			p[strlen(p)-1] = 0;
-		}
-		strcat(text, p);
-	}
-
-	// don't let text be too long for malicious reasons
-	if (strlen(text) > 150)
-		text[150] = 0;
-
-	strcat(text, "\n");
-
-	if (flood_msgs->value) {
-		cl = ent->client;
-
-        if (level.time < cl->flood_locktill) {
-			gi.cprintf(ent, PRINT_HIGH, "You can't talk for %d more seconds\n",
-				(int)(cl->flood_locktill - level.time));
-            return;
-        }
-        i = cl->flood_whenhead - flood_msgs->value + 1;
-        if (i < 0)
-            i = (sizeof(cl->flood_when)/sizeof(cl->flood_when[0])) + i;
-		if (cl->flood_when[i] && 
-			level.time - cl->flood_when[i] < flood_persecond->value) {
-			cl->flood_locktill = level.time + flood_waitdelay->value;
-			gi.cprintf(ent, PRINT_CHAT, "Flood protection:  You can't talk for %d seconds.\n",
-				(int)flood_waitdelay->value);
-            return;
-        }
-		cl->flood_whenhead = (cl->flood_whenhead + 1) %
-			(sizeof(cl->flood_when)/sizeof(cl->flood_when[0]));
-		cl->flood_when[cl->flood_whenhead] = level.time;
-	}
-
-	if (dedicated->value)
-		gi.cprintf(NULL, PRINT_CHAT, "%s", text);
-
-	for (j = 1; j <= game.maxclients; j++)
-	{
-		other = &g_edicts[j];
-		if (!other->inuse)
-			continue;
-		if (!other->client)
-			continue;
-		if (team)
-		{
-			if (!OnSameTeam(ent, other))
-				continue;
-		}
-		gi.cprintf(other, PRINT_CHAT, "%s", text);
-	}
-}
-
 void Cmd_PlayerList_f(edict_t *ent)
 {
 	int i;
@@ -882,13 +742,12 @@ void Cmd_PlayerList_f(edict_t *ent)
 		if (!e2->inuse)
 			continue;
 
-		Com_sprintf(st, sizeof(st), "%02d:%02d %4d %3d %s%s\n",
+		Com_sprintf(st, sizeof(st), "%02d:%02d %4d %3d %s\n",
 			(level.framenum - e2->client->resp.enterframe) / 600,
 			((level.framenum - e2->client->resp.enterframe) % 600)/10,
 			e2->client->ping,
 			e2->client->resp.score,
-			e2->client->pers.netname,
-			e2->client->resp.spectator ? " (spectator)" : "");
+			e2->client->pers.netname);
 		if (strlen(text) + strlen(st) > sizeof(text) - 50) {
 			sprintf(text+strlen(text), "And more...\n");
 			gi.cprintf(ent, PRINT_HIGH, "%s", text);
@@ -914,26 +773,6 @@ void ClientCommand (edict_t *ent)
 
 	cmd = gi.argv(0);
 
-	if (Q_stricmp (cmd, "players") == 0)
-	{
-		Cmd_Players_f (ent);
-		return;
-	}
-	if (Q_stricmp (cmd, "say") == 0)
-	{
-		Cmd_Say_f (ent, false, false);
-		return;
-	}
-	if (Q_stricmp (cmd, "say_team") == 0)
-	{
-		Cmd_Say_f (ent, true, false);
-		return;
-	}
-	if (Q_stricmp (cmd, "score") == 0)
-	{
-		Cmd_Score_f (ent);
-		return;
-	}
 	if (Q_stricmp (cmd, "help") == 0)
 	{
 		Cmd_Help_f (ent);
@@ -947,8 +786,6 @@ void ClientCommand (edict_t *ent)
 		Cmd_Use_f (ent);
 	else if (Q_stricmp (cmd, "drop") == 0)
 		Cmd_Drop_f (ent);
-	else if (Q_stricmp (cmd, "give") == 0)
-		Cmd_Give_f (ent);
 	else if (Q_stricmp (cmd, "god") == 0)
 		Cmd_God_f (ent);
 	else if (Q_stricmp (cmd, "notarget") == 0)
@@ -985,8 +822,4 @@ void ClientCommand (edict_t *ent)
 		Cmd_PutAway_f (ent);
 	else if (Q_stricmp (cmd, "wave") == 0)
 		Cmd_Wave_f (ent);
-	else if (Q_stricmp(cmd, "playerlist") == 0)
-		Cmd_PlayerList_f(ent);
-	else	// anything that doesn't match a command will be a chat
-		Cmd_Say_f (ent, false, true);
 }

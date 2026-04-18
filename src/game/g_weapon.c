@@ -36,12 +36,6 @@ static void check_dodge (edict_t *self, vec3_t start, vec3_t dir, int speed)
 	trace_t	tr;
 	float	eta;
 
-	// easy mode only ducks one quarter the time
-	if (skill->value == 0)
-	{
-		if (random() > 0.25)
-			return;
-	}
 	VectorMA (start, 8192, dir, end);
 	tr = gi.trace (start, NULL, NULL, end, self, MASK_SHOT);
 	if ((tr.ent) && (tr.ent->svflags & SVF_MONSTER) && (tr.ent->health > 0) && (tr.ent->monsterinfo.dodge) && infront(tr.ent, self))
@@ -592,15 +586,11 @@ void rocket_touch (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *su
 	}
 	else
 	{
-		// don't throw any debris in net games
-		if (!deathmatch->value && !coop->value)
+		if ((surf) && !(surf->flags & (SURF_WARP|SURF_TRANS33|SURF_TRANS66|SURF_FLOWING)))
 		{
-			if ((surf) && !(surf->flags & (SURF_WARP|SURF_TRANS33|SURF_TRANS66|SURF_FLOWING)))
-			{
-				n = rand() % 5;
-				while(n--)
-					ThrowDebris (ent, "models/objects/debris2/tris.md2", 2, ent->s.origin);
-			}
+			n = rand() % 5;
+			while(n--)
+				ThrowDebris (ent, "models/objects/debris2/tris.md2", 2, ent->s.origin);
 		}
 	}
 
@@ -814,10 +804,7 @@ void bfg_think (edict_t *self)
 	int		dmg;
 	trace_t	tr;
 
-	if (deathmatch->value)
-		dmg = 5;
-	else
-		dmg = 10;
+	dmg = 10;
 
 	ent = NULL;
 	while ((ent = findradius(ent, self->s.origin, 256)) != NULL)

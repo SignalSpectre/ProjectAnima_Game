@@ -278,9 +278,6 @@ void mutant_check_refire (edict_t *self)
 {
 	if (!self->enemy || !self->enemy->inuse || self->enemy->health <= 0)
 		return;
-
-	if ( ((skill->value == 3) && (random() < 0.5)) || (range(self, self->enemy) == RANGE_MELEE) )
-		self->monsterinfo.nextframe = FRAME_attack09;
 }
 
 mframe_t mutant_frames_attack [] =
@@ -505,9 +502,6 @@ void mutant_pain (edict_t *self, edict_t *other, float kick, int damage)
 
 	self->pain_debounce_time = level.time + 3;
 
-	if (skill->value == 3)
-		return;		// no pain anims in nightmare
-
 	r = random();
 	if (r < 0.33)
 	{
@@ -610,12 +604,6 @@ void mutant_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 */
 void SP_monster_mutant (edict_t *self)
 {
-	if (deathmatch->value)
-	{
-		G_FreeEdict (self);
-		return;
-	}
-
 	sound_swing = gi.soundindex ("mutant/mutatck1.wav");
 	sound_hit = gi.soundindex ("mutant/mutatck2.wav");
 	sound_hit2 = gi.soundindex ("mutant/mutatck3.wav");

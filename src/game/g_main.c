@@ -41,16 +41,11 @@ cvar_t	*maxclients;
 cvar_t	*dedicated;
 #endif
 
-cvar_t	*deathmatch;
-cvar_t	*coop;
-cvar_t	*dmflags;
-cvar_t	*skill;
 cvar_t	*fraglimit;
 cvar_t	*timelimit;
 cvar_t	*password;
 cvar_t	*spectator_password;
 cvar_t	*needpass;
-cvar_t	*maxspectators;
 cvar_t	*maxentities;
 cvar_t	*g_select_empty;
 
@@ -86,7 +81,6 @@ void ClientUserinfoChanged (edict_t *ent, char *userinfo);
 void ClientDisconnect (edict_t *ent);
 void ClientBegin (edict_t *ent);
 void ClientCommand (edict_t *ent);
-void RunEntity (edict_t *ent);
 void WriteGame (char *filename, qboolean autosave);
 void ReadGame (char *filename);
 void WriteLevel (char *filename);
@@ -231,13 +225,6 @@ void EndDMLevel (void)
 	char *s, *t, *f;
 	static const char *seps = " ,\n\r";
 
-	// stay on same level flag
-	if ((int)dmflags->value & DF_SAME_LEVEL)
-	{
-		BeginIntermission (CreateTargetChangeLevel (level.mapname) );
-		return;
-	}
-
 	// see if it's in the map list
 	if (*sv_maplist->string) {
 		s = strdup(sv_maplist->string);
@@ -277,78 +264,6 @@ void EndDMLevel (void)
 		BeginIntermission (ent);
 	}
 }
-
-
-/*
-=================
-CheckNeedPass
-=================
-*/
-void CheckNeedPass (void)
-{
-	int need;
-
-	// if password or spectator_password has changed, update needpass
-	// as needed
-	if (password->modified || spectator_password->modified) 
-	{
-		password->modified = spectator_password->modified = false;
-
-		need = 0;
-
-		if (*password->string && Q_stricmp(password->string, "none"))
-			need |= 1;
-		if (*spectator_password->string && Q_stricmp(spectator_password->string, "none"))
-			need |= 2;
-
-		gi.cvar_set("needpass", va("%d", need));
-	}
-}
-
-/*
-=================
-CheckDMRules
-=================
-*/
-void CheckDMRules (void)
-{
-	int			i;
-	gclient_t	*cl;
-
-	if (level.intermissiontime)
-		return;
-
-	if (!deathmatch->value)
-		return;
-
-	if (timelimit->value)
-	{
-		if (level.time >= timelimit->value*60)
-		{
-			gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
-			EndDMLevel ();
-			return;
-		}
-	}
-
-	if (fraglimit->value)
-	{
-		for (i=0 ; i<maxclients->value ; i++)
-		{
-			cl = game.clients + i;
-			if (!g_edicts[i+1].inuse)
-				continue;
-
-			if (cl->resp.score >= fraglimit->value)
-			{
-				gi.bprintf (PRINT_HIGH, "Fraglimit hit.\n");
-				EndDMLevel ();
-				return;
-			}
-		}
-	}
-}
-
 
 /*
 =============
@@ -438,12 +353,6 @@ void G_RunFrame (void)
 
 		G_RunEntity (ent);
 	}
-
-	// see if it is time to end a deathmatch
-	CheckDMRules ();
-
-	// see if needpass needs updated
-	CheckNeedPass ();
 
 	// build the playerstate_t structures for all players
 	ClientEndServerFrames ();

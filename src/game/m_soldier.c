@@ -437,9 +437,6 @@ void soldier_pain (edict_t *self, edict_t *other, float kick, int damage)
 		return;
 	}
 
-	if (skill->value == 3)
-		return;		// no pain anims in nightmare
-
 	r = random();
 
 	if (r < 0.33)
@@ -538,10 +535,7 @@ void soldier_attack1_refire1 (edict_t *self)
 	if (self->enemy->health <= 0)
 		return;
 
-	if ( ((skill->value == 3) && (random() < 0.5)) || (range(self, self->enemy) == RANGE_MELEE) )
-		self->monsterinfo.nextframe = FRAME_attak102;
-	else
-		self->monsterinfo.nextframe = FRAME_attak110;
+	self->monsterinfo.nextframe = FRAME_attak110;
 }
 
 void soldier_attack1_refire2 (edict_t *self)
@@ -551,9 +545,6 @@ void soldier_attack1_refire2 (edict_t *self)
 
 	if (self->enemy->health <= 0)
 		return;
-
-	if ( ((skill->value == 3) && (random() < 0.5)) || (range(self, self->enemy) == RANGE_MELEE) )
-		self->monsterinfo.nextframe = FRAME_attak102;
 }
 
 mframe_t soldier_frames_attack1 [] =
@@ -588,10 +579,7 @@ void soldier_attack2_refire1 (edict_t *self)
 	if (self->enemy->health <= 0)
 		return;
 
-	if ( ((skill->value == 3) && (random() < 0.5)) || (range(self, self->enemy) == RANGE_MELEE) )
-		self->monsterinfo.nextframe = FRAME_attak204;
-	else
-		self->monsterinfo.nextframe = FRAME_attak216;
+	self->monsterinfo.nextframe = FRAME_attak216;
 }
 
 void soldier_attack2_refire2 (edict_t *self)
@@ -602,8 +590,7 @@ void soldier_attack2_refire2 (edict_t *self)
 	if (self->enemy->health <= 0)
 		return;
 
-	if ( ((skill->value == 3) && (random() < 0.5)) || (range(self, self->enemy) == RANGE_MELEE) )
-		self->monsterinfo.nextframe = FRAME_attak204;
+	self->monsterinfo.nextframe = FRAME_attak204;
 }
 
 mframe_t soldier_frames_attack2 [] =
@@ -681,12 +668,6 @@ mmove_t soldier_move_attack3 = {FRAME_attak301, FRAME_attak309, soldier_frames_a
 void soldier_fire4 (edict_t *self)
 {
 	soldier_fire (self, 3);
-//
-//	if (self->enemy->health <= 0)
-//		return;
-//
-//	if ( ((skill->value == 3) && (random() < 0.5)) || (range(self, self->enemy) == RANGE_MELEE) )
-//		self->monsterinfo.nextframe = FRAME_attak402;
 }
 
 mframe_t soldier_frames_attack4 [] =
@@ -699,37 +680,6 @@ mframe_t soldier_frames_attack4 [] =
 	ai_charge, 0, NULL
 };
 mmove_t soldier_move_attack4 = {FRAME_attak401, FRAME_attak406, soldier_frames_attack4, soldier_run};
-
-#if 0
-// ATTACK5 (prone)
-
-void soldier_fire5 (edict_t *self)
-{
-	soldier_fire (self, 4);
-}
-
-void soldier_attack5_refire (edict_t *self)
-{
-	if (self->enemy->health <= 0)
-		return;
-
-	if ( ((skill->value == 3) && (random() < 0.5)) || (range(self, self->enemy) == RANGE_MELEE) )
-		self->monsterinfo.nextframe = FRAME_attak505;
-}
-
-mframe_t soldier_frames_attack5 [] =
-{
-	ai_charge, 8, NULL,
-	ai_charge, 8, NULL,
-	ai_charge, 0, NULL,
-	ai_charge, 0, NULL,
-	ai_charge, 0, soldier_fire5,
-	ai_charge, 0, NULL,
-	ai_charge, 0, NULL,
-	ai_charge, 0, soldier_attack5_refire
-};
-mmove_t soldier_move_attack5 = {FRAME_attak501, FRAME_attak508, soldier_frames_attack5, soldier_run};
-#endif
 
 // ATTACK6 (run & shoot)
 
@@ -745,9 +695,6 @@ void soldier_attack6_refire (edict_t *self)
 
 	if (range(self, self->enemy) < RANGE_MID)
 		return;
-
-	if (skill->value == 3)
-		self->monsterinfo.nextframe = FRAME_runs03;
 }
 
 mframe_t soldier_frames_attack6 [] =
@@ -796,11 +743,8 @@ void soldier_sight(edict_t *self, edict_t *other)
 	else
 		gi.sound (self, CHAN_VOICE, sound_sight2, 1, ATTN_NORM, 0);
 
-	if ((skill->value > 0) && (range(self, self->enemy) >= RANGE_MID))
-	{
-		if (random() > 0.5)
-			self->monsterinfo.currentmove = &soldier_move_attack6;
-	}
+	if (random() > 0.5)
+		self->monsterinfo.currentmove = &soldier_move_attack6;
 }
 
 //
@@ -836,34 +780,13 @@ void soldier_dodge (edict_t *self, edict_t *attacker, float eta)
 	if (!self->enemy)
 		self->enemy = attacker;
 
-	if (skill->value == 0)
-	{
-		self->monsterinfo.currentmove = &soldier_move_duck;
-		return;
-	}
-
 	self->monsterinfo.pausetime = level.time + eta + 0.3;
 	r = random();
 
-	if (skill->value == 1)
-	{
-		if (r > 0.33)
-			self->monsterinfo.currentmove = &soldier_move_duck;
-		else
-			self->monsterinfo.currentmove = &soldier_move_attack3;
-		return;
-	}
-
-	if (skill->value >= 2)
-	{
-		if (r > 0.66)
-			self->monsterinfo.currentmove = &soldier_move_duck;
-		else
-			self->monsterinfo.currentmove = &soldier_move_attack3;
-		return;
-	}
-
-	self->monsterinfo.currentmove = &soldier_move_attack3;
+	if (r > 0.33)
+		self->monsterinfo.currentmove = &soldier_move_duck;
+	else
+		self->monsterinfo.currentmove = &soldier_move_attack3;
 }
 
 
@@ -1237,12 +1160,6 @@ void SP_monster_soldier_x (edict_t *self)
 */
 void SP_monster_soldier_light (edict_t *self)
 {
-	if (deathmatch->value)
-	{
-		G_FreeEdict (self);
-		return;
-	}
-
 	SP_monster_soldier_x (self);
 
 	sound_pain_light = gi.soundindex ("soldier/solpain2.wav");
@@ -1259,14 +1176,7 @@ void SP_monster_soldier_light (edict_t *self)
 /*QUAKED monster_soldier (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight
 */
 void SP_monster_soldier (edict_t *self)
-{
-	if (deathmatch->value)
-	{
-		G_FreeEdict (self);
-		return;
-	}
-
-	SP_monster_soldier_x (self);
+{	SP_monster_soldier_x (self);
 
 	sound_pain = gi.soundindex ("soldier/solpain1.wav");
 	sound_death = gi.soundindex ("soldier/soldeth1.wav");
@@ -1281,12 +1191,6 @@ void SP_monster_soldier (edict_t *self)
 */
 void SP_monster_soldier_ss (edict_t *self)
 {
-	if (deathmatch->value)
-	{
-		G_FreeEdict (self);
-		return;
-	}
-
 	SP_monster_soldier_x (self);
 
 	sound_pain_ss = gi.soundindex ("soldier/solpain3.wav");

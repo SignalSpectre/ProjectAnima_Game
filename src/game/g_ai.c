@@ -628,9 +628,6 @@ qboolean M_CheckAttack (edict_t *self)
 	// melee attack
 	if (enemy_range == RANGE_MELEE)
 	{
-		// don't always melee in easy mode
-		if (skill->value == 0 && (rand()&3) )
-			return false;
 		if (self->monsterinfo.melee)
 			self->monsterinfo.attack_state = AS_MELEE;
 		else
@@ -669,10 +666,7 @@ qboolean M_CheckAttack (edict_t *self)
 		return false;
 	}
 
-	if (skill->value == 0)
-		chance *= 0.5;
-	else if (skill->value >= 2)
-		chance *= 2;
+	chance *= 2;
 
 	if (random () < chance)
 	{
@@ -870,13 +864,6 @@ qboolean ai_checkattack (edict_t *self, float dist)
 		VectorCopy (self->enemy->s.origin, self->monsterinfo.last_sighting);
 	}
 
-// look for other coop players here
-//	if (coop && self->monsterinfo.search_time < level.time)
-//	{
-//		if (FindTarget (self))
-//			return true;
-//	}
-
 	enemy_infront = infront(self, self->enemy);
 	enemy_range = range(self, self->enemy);
 	VectorSubtract (self->enemy->s.origin, self->s.origin, temp);
@@ -965,13 +952,6 @@ void ai_run (edict_t *self, float dist)
 		VectorCopy (self->enemy->s.origin, self->monsterinfo.last_sighting);
 		self->monsterinfo.trail_time = level.time;
 		return;
-	}
-
-	// coop will change to another enemy if visible
-	if (coop->value)
-	{	// FIXME: insane guys get mad with this, which causes crashes!
-		if (FindTarget (self))
-			return;
 	}
 
 	if ((self->monsterinfo.search_time) && (level.time > (self->monsterinfo.search_time + 20)))

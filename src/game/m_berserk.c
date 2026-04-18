@@ -323,9 +323,6 @@ void berserk_pain (edict_t *self, edict_t *other, float kick, int damage)
 	self->pain_debounce_time = level.time + 3;
 	gi.sound (self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 
-	if (skill->value == 3)
-		return;		// no pain anims in nightmare
-
 	if ((damage < 20) || (random() < 0.5))
 		self->monsterinfo.currentmove = &berserk_move_pain1;
 	else
@@ -412,12 +409,6 @@ void berserk_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 */
 void SP_monster_berserk (edict_t *self)
 {
-	if (deathmatch->value)
-	{
-		G_FreeEdict (self);
-		return;
-	}
-
 	// pre-caches
 	sound_pain  = gi.soundindex ("berserk/berpain2.wav");
 	sound_die   = gi.soundindex ("berserk/berdeth2.wav");

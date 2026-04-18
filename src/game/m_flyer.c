@@ -539,8 +539,6 @@ void flyer_pain (edict_t *self, edict_t *other, float kick, int damage)
 		return;
 
 	self->pain_debounce_time = level.time + 3;
-	if (skill->value == 3)
-		return;		// no pain anims in nightmare
 
 	n = rand() % 3;
 	if (n == 0)
@@ -572,12 +570,6 @@ void flyer_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage,
 */
 void SP_monster_flyer (edict_t *self)
 {
-	if (deathmatch->value)
-	{
-		G_FreeEdict (self);
-		return;
-	}
-
 	// fix a map bug in jail5.bsp
 	if (!Q_stricmp(level.mapname, "jail5") && (self->s.origin[2] == -104))
 	{
