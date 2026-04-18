@@ -478,7 +478,7 @@ void LoadPCX (char *filename, byte **pic, byte **palette, int *width, int *heigh
 		return;
 	}
 
-	out = malloc ( (pcx->ymax+1) * (pcx->xmax+1) );
+	out = malloc((pcx->ymax+1) * (pcx->xmax+1));
 
 	*pic = out;
 
@@ -487,7 +487,7 @@ void LoadPCX (char *filename, byte **pic, byte **palette, int *width, int *heigh
 	if (palette)
 	{
 		*palette = malloc(768);
-		memcpy (*palette, (byte *)pcx + len - 768, 768);
+		memcpy(*palette, (byte *)pcx + len - 768, 768);
 	}
 
 	if (width)
@@ -509,7 +509,8 @@ void LoadPCX (char *filename, byte **pic, byte **palette, int *width, int *heigh
 			else
 				runLength = 1;
 
-			while(runLength-- > 0)
+			while(runLength-- > 0 && 
+				  x <= pcx->xmax) // Better not to trust runLength apparently
 				pix[x++] = dataByte;
 		}
 

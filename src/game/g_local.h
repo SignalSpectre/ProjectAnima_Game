@@ -511,7 +511,6 @@ extern	edict_t			*g_edicts;
 extern	cvar_t	*maxentities;
 extern	cvar_t	*fraglimit;
 extern	cvar_t	*timelimit;
-extern	cvar_t	*password;
 extern	cvar_t	*spectator_password;
 extern	cvar_t	*needpass;
 extern	cvar_t	*g_select_empty;

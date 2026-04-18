@@ -36,9 +36,6 @@ cvar_t	*adr8;
 cvar_t	*cl_stereo_separation;
 cvar_t	*cl_stereo;
 
-cvar_t	*rcon_client_password;
-cvar_t	*rcon_address;
-
 cvar_t	*cl_noskins;
 cvar_t	*cl_autoskins;
 cvar_t	*cl_footsteps;
@@ -515,71 +512,6 @@ void CL_Connect_f (void)
 	strncpy (cls.servername, server, sizeof(cls.servername)-1);
 	cls.connect_time = -99999;	// CL_CheckForResend() will fire immediately
 }
-
-
-/*
-=====================
-CL_Rcon_f
-
-  Send the rest of the command line over as
-  an unconnected command.
-=====================
-*/
-void CL_Rcon_f (void)
-{
-	char	message[1024];
-	int		i;
-	netadr_t	to;
-
-	if (!rcon_client_password->string)
-	{
-		Com_Printf ("You must set 'rcon_password' before\n"
-					"issuing an rcon command.\n");
-		return;
-	}
-
-	message[0] = (char)255;
-	message[1] = (char)255;
-	message[2] = (char)255;
-	message[3] = (char)255;
-	message[4] = 0;
-
-	NET_Config (true);		// allow remote
-
-	strcat (message, "rcon ");
-
-	strcat (message, rcon_client_password->string);
-	strcat (message, " ");
-
-	for (i=1 ; i<Cmd_Argc() ; i++)
-	{
-		strcat (message, Cmd_Argv(i));
-		strcat (message, " ");
-	}
-
-	if (cls.state >= ca_connected)
-		to = cls.netchan.remote_address;
-	else
-	{
-		if (!strlen(rcon_address->string))
-		{
-			Com_Printf ("You must either be connected,\n"
-						"or set the 'rcon_address' cvar\n"
-						"to issue rcon commands\n");
-
-			return;
-		}
-
-		if (!NET_StringToAdr (rcon_address->string, &to, PORT_SERVER))
-		{
-			Com_Printf ("Bad server address\n");
-			return;
-		}
-	}
-
-	NET_SendPacket (NS_CLIENT, strlen(message)+1, message, to);
-}
-
 
 
 /*
@@ -1515,15 +1447,11 @@ void CL_InitLocal (void)
 	cl_paused = Cvar_Get ("paused", "0", 0);
 	cl_timedemo = Cvar_Get ("timedemo", "0", 0);
 
-	rcon_client_password = Cvar_Get ("rcon_password", "", 0);
-	rcon_address = Cvar_Get ("rcon_address", "", 0);
-
 	cl_lightlevel = Cvar_Get ("r_lightlevel", "0", 0);
 
 	//
 	// userinfo
 	//
-	info_password = Cvar_Get ("password", "", CVAR_USERINFO);
 	name = Cvar_Get ("name", "unnamed", CVAR_USERINFO | CVAR_ARCHIVE);
 	skin = Cvar_Get ("skin", "male/grunt", CVAR_USERINFO | CVAR_ARCHIVE);
 	rate = Cvar_Get ("rate", "25000", CVAR_USERINFO | CVAR_ARCHIVE);	// FIXME
@@ -1557,8 +1485,6 @@ void CL_InitLocal (void)
 
 	Cmd_AddCommand ("connect", CL_Connect_f);
 	Cmd_AddCommand ("reconnect", CL_Reconnect_f);
-
-	Cmd_AddCommand ("rcon", CL_Rcon_f);
 
 // 	Cmd_AddCommand ("packet", CL_Packet_f); // this is dangerous to leave in
 

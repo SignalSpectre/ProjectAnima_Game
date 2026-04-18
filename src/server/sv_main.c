@@ -32,8 +32,6 @@ cvar_t	*sv_enforcetime;
 cvar_t	*timeout;				// seconds without any message
 cvar_t	*zombietime;			// seconds to sink messages after disconnect
 
-cvar_t	*rcon_password;			// password for remote server commands
-
 cvar_t	*allow_download;
 cvar_t *allow_download_players;
 cvar_t *allow_download_models;
@@ -412,56 +410,7 @@ gotnewcl:
 
 int Rcon_Validate (void)
 {
-	if (!strlen (rcon_password->string))
-		return 0;
-
-	if (strcmp (Cmd_Argv(1), rcon_password->string) )
-		return 0;
-
 	return 1;
-}
-
-/*
-===============
-SVC_RemoteCommand
-
-A client issued an rcon command.
-Shift down the remaining args
-Redirect all printfs
-===============
-*/
-void SVC_RemoteCommand (void)
-{
-	int		i;
-	char	remaining[1024];
-
-	i = Rcon_Validate ();
-
-	if (i == 0)
-		Com_Printf ("Bad rcon from %s:\n%s\n", NET_AdrToString (net_from), net_message.data+4);
-	else
-		Com_Printf ("Rcon from %s:\n%s\n", NET_AdrToString (net_from), net_message.data+4);
-
-	Com_BeginRedirect (RD_PACKET, sv_outputbuf, SV_OUTPUTBUF_LENGTH, SV_FlushRedirect);
-
-	if (!Rcon_Validate ())
-	{
-		Com_Printf ("Bad rcon_password.\n");
-	}
-	else
-	{
-		remaining[0] = 0;
-
-		for (i=2 ; i<Cmd_Argc() ; i++)
-		{
-			strcat (remaining, Cmd_Argv(i) );
-			strcat (remaining, " ");
-		}
-
-		Cmd_ExecuteString (remaining);
-	}
-
-	Com_EndRedirect ();
 }
 
 /*
@@ -501,8 +450,6 @@ void SV_ConnectionlessPacket (void)
 		SVC_GetChallenge ();
 	else if (!strcmp(c,"connect"))
 		SVC_DirectConnect ();
-	else if (!strcmp(c, "rcon"))
-		SVC_RemoteCommand ();
 	else
 		Com_Printf ("bad connectionless packet from %s:\n%s\n"
 		, NET_AdrToString (net_from), s);
@@ -948,8 +895,6 @@ Only called at quake2.exe startup, not for each game
 void SV_Init (void)
 {
 	SV_InitOperatorCommands	();
-
-	rcon_password = Cvar_Get ("rcon_password", "", 0);
 	Cvar_Get ("fraglimit", "0", CVAR_SERVERINFO);
 	Cvar_Get ("timelimit", "0", CVAR_SERVERINFO);
 	Cvar_Get ("cheats", "0", CVAR_SERVERINFO|CVAR_LATCH);

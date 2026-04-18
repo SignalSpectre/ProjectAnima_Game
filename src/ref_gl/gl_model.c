@@ -1293,7 +1293,7 @@ void Mod_Free (model_t *mod)
 		return;
 
 	mod->needload = nl_unreferenced;
-	if (mod->type == mod_alias)
+	if (mod->type == mod_alias || mod->type == mod_sprite)
 	{
 		if (mod != &mod_known[0]) // worldmodel slot?
 			return;

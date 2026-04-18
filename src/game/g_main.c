@@ -43,9 +43,6 @@ cvar_t	*dedicated;
 
 cvar_t	*fraglimit;
 cvar_t	*timelimit;
-cvar_t	*password;
-cvar_t	*spectator_password;
-cvar_t	*needpass;
 cvar_t	*maxentities;
 cvar_t	*g_select_empty;
 
