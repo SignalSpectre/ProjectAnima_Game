@@ -274,7 +274,7 @@ model_t *Mod_LoadModel (model_t *mod, qboolean crash)
 {
 	void	*buf;
 
-	if (mod->type == mod_alias)
+	if (mod->type == mod_alias || mod->type == mod_sprite)
 	{
 		if (ri.Cache_Check (&mod->cache))
 		{
